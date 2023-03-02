@@ -1,0 +1,26 @@
+{
+  "data_path": "../KGs/Suramin/suramin.owl",
+  "lp1": {
+    "target_concept": {
+      "positive_examples": ["httpdl-learner.orgsuramin#cpd10",
+"httpdl-learner.orgsuramin#cpd11",
+"httpdl-learner.orgsuramin#cpd12",
+"httpdl-learner.orgsuramin#cpd14",
+"httpdl-learner.orgsuramin#cpd7",
+"httpdl-learner.orgsuramin#cpd8",
+"httpdl-learner.orgsuramin#cpd9"
+],
+      "negative_examples": ["http://dl-learner.org/suramin#cpd0",
+"http://dl-learner.org/suramin#cpd1",
+"http://dl-learner.org/suramin#cpd13",
+"http://dl-learner.org/suramin#cpd15",
+"http://dl-learner.org/suramin#cpd16",
+"http://dl-learner.org/suramin#cpd2",
+"http://dl-learner.org/suramin#cpd3",
+"http://dl-learner.org/suramin#cpd4",
+"http://dl-learner.org/suramin#cpd5",
+"http://dl-learner.org/suramin#cpd6"
+]
+    }
+  }
+}
