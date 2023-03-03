@@ -6,23 +6,8 @@ from ontolearn.learning_problem import PosNegLPStandard
 from owlapy.model import OWLClass, OWLNamedIndividual, IRI
 from ontolearn.utils import setup_logging
 from ontolearn.metrics import Accuracy, F1
-from Sampling.Samplers.LPFirst_Samplers.ForestFireSamplerLPFirst import ForestFireSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomWalkSamplerLPFirst import RandomWalkSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomWalkerWithPrioritizationSamplerLPFirst import \
-    RandomWalkerWithPrioritizationSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomEdgeSamplerLPFirst import RandomEdgeSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomNodeSamplerLPFirst import RandomNodeSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPFirst import \
-    RandomWalkerJumpsWithPrioritizationSamplerLPFirst
-from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsSamplerLPFirst import RandomWalkerJumpsSamplerLPFirst
-from Sampling.Samplers.RandomWalkSamplerLPCentralized import RandomWalkSamplerLPCentralized
-from Sampling.Samplers.ForestFireSampler import ForestFireSampler
-from Sampling.Samplers.RandomWalkSampler import RandomWalkSampler
 from Sampling.Samplers.RandomWalkerJumpsSampler import RandomWalkerJumpsSampler
-from Sampling.Samplers.RandomWalkerJumpsWithPrioritizationSampler import RandomWalkerJumpsWithPrioritizationSampler
-from Sampling.Samplers.RandomWalkerWithPrioritizationSampler import RandomWalkerWithPrioritizationSampler
-from Sampling.Samplers.NodeSampler import NodeSampler
-from Sampling.Samplers.RandomEdgeSampler import RandomEdgeSampler
+
 setup_logging()
 
 try:
