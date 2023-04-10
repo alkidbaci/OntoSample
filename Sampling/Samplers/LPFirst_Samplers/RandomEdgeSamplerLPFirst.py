@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 class RandomEdgeSamplerLPFirst(Sampler):
     """
-        Implementation of random edge sampling. Creates a subgraph by sampling 'x' amount of edges in the
-        graph. Starts with LP nodes first.
+        Implementation of random walk sampling. Creates a subgraph by performing a simple random walk in the
+        graph.
 
         Args: graph (KnowledgeBase)
     """
@@ -24,10 +24,10 @@ class RandomEdgeSamplerLPFirst(Sampler):
 
     def _next_edge(self):
         """
-        Retrieving a single edge randomly. Starts with LP nodes first.
+        Retrieving a single edge randomly.
         """
         if self._lpi:
-            node1 = random.choice(list(self._lpi))
+            node1 = self._lpi.pop()
         else:
             node1 = random.choice(list(self._nodes))
         node2 = self.get_random_neighbor(node1)
@@ -41,23 +41,18 @@ class RandomEdgeSamplerLPFirst(Sampler):
                        self._sampled_nodes_edges[node1]):
                 self._sampled_nodes_edges[node1].add(node2)
 
-    def sample(self, edges_number: int, lp_path,  data_properties_percentage=1.0) -> KnowledgeBase:
+    def sample(self, nodes_number: int, lp_path,  data_properties_percentage=1.0) -> KnowledgeBase:
         """
-        Performs the sampling of the graph.
+        Sampling nodes with a single random walk.
 
-        :param edges_number: Number of distinct edges to be sampled.
         :param lp_path: Path of the .json file containing the learning problem
         :param data_properties_percentage: Percentage of data properties inclusion for each node( values from 0-1 )
         :return: Sampled graph.
         """
-        total_edges = self.number_of_edges()
-        if edges_number > total_edges:
-            raise ValueError('The number of edges is too large. Please make sure it '
-                             'is smaller than the total number of edges (total edges: {})'.format(total_edges))
         if data_properties_percentage > 1 or data_properties_percentage < 0:
             raise ValueError("Data properties sample percentage must be a value between 1 and 0")
         self._lpi = list(self.get_lp_individuals(lp_path))
-        while sum(len(v) for v in self._sampled_nodes_edges.values()) < edges_number:
+        while len(self._sampled_nodes_edges.keys()) < nodes_number:
             self._next_edge()
         new_graph = self.get_subgraph_by_remove(self._sampled_nodes_edges, data_properties_percentage)
         return new_graph
@@ -84,10 +79,6 @@ class RandomEdgeSamplerLPFirst(Sampler):
         return edge_counter
 
     def get_lp_individuals(self, lp_path):
-        """
-            :param lp_path: path of the .json file that contains the learning problems
-            :return: learning problem nodes as individuals (OWLNamedIndividual)
-        """
         with open(lp_path) as json_file:
             settings = json.load(json_file)
         prop = list(settings.items())

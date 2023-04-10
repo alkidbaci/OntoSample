@@ -1,7 +1,8 @@
 import json
 import math
 import time
-from Sampling.Samplers.LPFirst_Samplers.ForestFireSamplerLPFirst import ForestFireSamplerLPFirst
+
+
 from Sampling.Samplers.LPFirst_Samplers.RandomWalkSamplerLPFirst import RandomWalkSamplerLPFirst
 from Sampling.Samplers.LPFirst_Samplers.RandomWalkerWithPrioritizationSamplerLPFirst import \
     RandomWalkerWithPrioritizationSamplerLPFirst
@@ -10,11 +11,21 @@ from Sampling.Samplers.LPFirst_Samplers.RandomNodeSamplerLPFirst import RandomNo
 from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPFirst import \
     RandomWalkerJumpsWithPrioritizationSamplerLPFirst
 from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsSamplerLPFirst import RandomWalkerJumpsSamplerLPFirst
+
+from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsSamplerLPCentralized import \
+    RandomWalkerJumpsSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPCentralized import \
+    RandomWalkerJumpsWithPrioritizationSamplerLPCentralized
 from Sampling.Samplers.LPCentralized_Samplers.RandomWalkSamplerLPCentralized import RandomWalkSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerWithPrioritizationSamplerLPCentralized import \
+    RandomWalkerWithPrioritizationSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomNodeSamplerLPCentralized import RandomNodeSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomEdgeSamplerLPCentralized import RandomEdgeSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.ForestFireSamplerLPCentralized import ForestFireSamplerLPCentralized
+
 from Sampling.Samplers.ForestFireSampler import ForestFireSampler
 from Sampling.Samplers.RandomWalkSampler import RandomWalkSampler
 from Sampling.Samplers.RandomWalkerJumpsSampler import RandomWalkerJumpsSampler
-from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsSamplerLPCentralized import RandomWalkerJumpsSamplerLPCentralized
 from Sampling.Samplers.RandomWalkerJumpsWithPrioritizationSampler import RandomWalkerJumpsWithPrioritizationSampler
 from Sampling.Samplers.RandomWalkerWithPrioritizationSampler import RandomWalkerWithPrioritizationSampler
 from Sampling.Samplers.NodeSampler import NodeSampler
@@ -31,9 +42,6 @@ setup_logging()
 
 
 class EvaluationRow:
-    """
-        This class is needed to save records in a single structure, so it is easier to print them later.
-    """
     def __init__(self, dataset, sampler, f1_score, f1_standard_deviation, accuracy, accuracy_standard_deviation,
                  average_runtime):
         self.dataset = dataset
@@ -45,12 +53,15 @@ class EvaluationRow:
         self.average_runtime = average_runtime
 
 
-# For each dataset >> for each sampler >> perform 'x' samples + run EvoLearner on each sample
+# Datasets: "mutagenesis_lp.json","premier-league_lp.json","nctrer_lp.json","hepatitis_lp.json","carcinogenesis_lp.json"
+datasets_path = {"nctrer_lp.json", "mutagenesis_lp.json", "hepatitis_lp.json", "carcinogenesis_lp.json"}
 
-datasets_path = {"premier-league_lp.json", "nctrer_lp.json", "mutagenesis_lp.json", "carcinogenesis_lp.json","hepatitis_lp.json"}  #
-samplers = {"RN", "RW", "RWJ", "RWP", "RWJP", "FF", "FFLPF", "RWLPF", "RWPLPF", "RWJLPF", "RWJPLPF", "RNLPF", "RWLPC", "RWJLPC"}
+# Samplers: "RNLPC","RWLPC","RWJLPC","RWPLPC","RWJPLPC","RELPC","FFLPC"
+samplers = {"RNLPC", "RWLPC", "RWJLPC", "RWPLPC", "RWJPLPC", "RELPC", "FFLPC"}
+
+
 evaluation_table = list()
-sampling_percentage = 0.25
+sampling_percentage = 0.1  # <-- sampling faction
 for path in datasets_path:
     with open(path) as json_file:
         settings = json.load(json_file)
@@ -58,17 +69,18 @@ for path in datasets_path:
     kb = KnowledgeBase(path=settings['data_path'])
     samples_nr = int(sampling_percentage * len(list(kb.ontology().individuals_in_signature())))
     for smp in samplers:
-        if path == "hepatitis_lp.json" and (smp == "RW" or smp == "RWP" or smp == "RWLPF" or smp == "RWPLPF" or smp == "RWLPC"):
+        if path == "hepatitis_lp.json" and (
+                smp == "RW" or smp == "RWP" or smp == "RWLPF" or smp == "RWPLPF" or smp == "RWLPC" or smp == "RWPLPC"):
             continue
-        if path == "mutagenesis_lp.json" and (smp == "RELPF" or smp == "RWLPF" or smp == "RWPLPF"):
+        if path == "mutagenesis_lp.json" and (smp == "RW" or smp == "RWP" or smp == "RWLPC" or smp == "RWPLPC"):
             continue
-        x = 50
+        iterations = 1  # <-- number of iterations
         f1_sum = 0
         accuracy_sum = 0
         QualityList = list()
         QualityList2 = list()
         average_runtime = 0
-        for i in range(0, x):
+        for i in range(0, iterations):
             kb = KnowledgeBase(path=settings['data_path'])
             if smp == "RN":
                 sampler = NodeSampler(kb)
@@ -84,8 +96,8 @@ for path in datasets_path:
                 sampler = RandomWalkerJumpsWithPrioritizationSampler(kb)
             elif smp == "FF":
                 sampler = ForestFireSampler(kb)
-            elif smp == "FFLPF":
-                sampler = ForestFireSamplerLPFirst(kb)
+            elif smp == "FFLPC":
+                sampler = ForestFireSamplerLPCentralized(kb)
             elif smp == "RWLPF":
                 sampler = RandomWalkSamplerLPFirst(kb)
             elif smp == "RWPLPF":
@@ -102,6 +114,14 @@ for path in datasets_path:
                 sampler = RandomWalkSamplerLPCentralized(kb)
             elif smp == "RWJLPC":
                 sampler = RandomWalkerJumpsSamplerLPCentralized(kb)
+            elif smp == "RWPLPC":
+                sampler = RandomWalkerWithPrioritizationSamplerLPCentralized(kb)
+            elif smp == "RWJPLPC":
+                sampler = RandomWalkerJumpsWithPrioritizationSamplerLPCentralized(kb)
+            elif smp == "RNLPC":
+                sampler = RandomNodeSamplerLPCentralized(kb)
+            elif smp == "RELPC":
+                sampler = RandomEdgeSamplerLPCentralized(kb)
 
             print(f"---------Dataset:{path} Sampler: {smp}----------")
             sampled_kb = sampler.sample(samples_nr, lp_path=path)
@@ -126,6 +146,14 @@ for path in datasets_path:
                 model.fit(lp, verbose=False)
                 elapsed_time = round(time.time() - start_time, 4)
                 average_runtime += elapsed_time
+
+                # model = CELOE(knowledge_base=sampled_kb)
+                # start_time = time.time()
+                # model.fit(lp, verbose=False)
+                # elapsed_time = round(time.time() - start_time, 4)
+                # average_runtime += elapsed_time
+
+                print(f'--Elapsed Time--:{elapsed_time}')
                 model.save_best_hypothesis(n=1, path='Predictions_{0}'.format(str_target_concept))
                 # Get only the top hypothesis
                 hypothesis = list(model.best_hypotheses(n=1))
@@ -154,8 +182,8 @@ for path in datasets_path:
                 print(f"Done: {i + 1}")
 
         # calculating standard deviation
-        f1_mean = f1_sum / x
-        accuracy_mean = accuracy_sum / x
+        f1_mean = f1_sum / iterations
+        accuracy_mean = accuracy_sum / iterations
         f1_sd = 0
         accuracy_sd = 0
         for q in QualityList:
@@ -163,14 +191,14 @@ for path in datasets_path:
             d_2 = d * d
             f1_sd += d_2
 
-        f1_sd = f1_sd / x
+        f1_sd = f1_sd / iterations
         f1_sd = math.sqrt(f1_sd)
 
         for q in QualityList2:
             d = abs(q - accuracy_mean)
             d_2 = d * d
             accuracy_sd += d_2
-        accuracy_sd = accuracy_sd / x
+        accuracy_sd = accuracy_sd / iterations
         accuracy_sd = math.sqrt(accuracy_sd)
 
         print("Quality of concepts generated on the sample graph, tested on the original graph shown by F1-score:")
@@ -181,8 +209,7 @@ for path in datasets_path:
 
         dataset = path.split("_")[0]
         evaluation_table.append(
-            EvaluationRow(dataset, smp, f1_mean, f1_sd, accuracy_mean, accuracy_sd, average_runtime / x))
-# printing everything
+            EvaluationRow(dataset, smp, f1_mean, f1_sd, accuracy_mean, accuracy_sd, average_runtime / iterations))
 for result in evaluation_table:
     print("Evaluation Results:")
     print(

@@ -42,26 +42,26 @@ class RandomEdgeSamplerLPCentralized(Sampler):
                        self._sampled_nodes_edges[node1]):
                 self._sampled_nodes_edges[node1].add(node2)
 
-    def sample(self, edges_number: int, lp_path,  data_properties_percentage=1.0) -> KnowledgeBase:
+    def sample(self, nodes_number: int, lp_path,  data_properties_percentage=1.0) -> KnowledgeBase:
         """
         Performs the sampling of the graph.
 
-        :param edges_number: Number of distinct edges to be sampled.
+        :param nodes_number: Number of distinct nodes to be sampled.
         :param lp_path: Path of the .json file containing the learning problem
         :param data_properties_percentage: Percentage of data properties inclusion for each node( values from 0-1 )
         :return: Sampled graph.
         """
         total_edges = self.number_of_edges()
         self._lpi_backup = list(self.get_lp_individuals(lp_path))
-        if edges_number > total_edges:
-            raise ValueError('The number of edges is too large. Please make sure it '
-                             'is smaller than the total number of edges (total edges: {})'.format(total_edges))
+        if nodes_number > len(self._nodes):
+            raise ValueError("The number of nodes is too large. Please make sure it "
+                             "is smaller than the total number of nodes (total nodes: {})".format(len(self._nodes)))
         if data_properties_percentage > 1 or data_properties_percentage < 0:
             raise ValueError("Data properties sample percentage must be a value between 1 and 0")
         self._lpi = list(self.get_lp_individuals(lp_path))
         stop_centralized_search_threshold = len(self._nodes) * 0.05
         no_new_nodes_counter = 0
-        while sum(len(v) for v in self._sampled_nodes_edges.values()) < edges_number:
+        while len(self._sampled_nodes_edges.keys()) < nodes_number:
             current_sampled_node_amount = len(self._sampled_nodes_edges.keys())
             self._next_edge()
             post_sampled_node_amount = len(self._sampled_nodes_edges.keys())  # amount of nodes after a single step

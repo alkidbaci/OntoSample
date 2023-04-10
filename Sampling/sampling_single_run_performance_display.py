@@ -1,11 +1,32 @@
 import json
 
-from Sampling.Samplers.LPCentralized_Samplers.RandomNodeSamplerLPCentralized import RandomNodeSamplerLPCentralized
+from Sampling.Samplers.LPFirst_Samplers.RandomWalkSamplerLPFirst import RandomWalkSamplerLPFirst
+from Sampling.Samplers.LPFirst_Samplers.RandomWalkerWithPrioritizationSamplerLPFirst import \
+    RandomWalkerWithPrioritizationSamplerLPFirst
+from Sampling.Samplers.LPFirst_Samplers.RandomEdgeSamplerLPFirst import RandomEdgeSamplerLPFirst
+from Sampling.Samplers.LPFirst_Samplers.RandomNodeSamplerLPFirst import RandomNodeSamplerLPFirst
+from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPFirst import \
+    RandomWalkerJumpsWithPrioritizationSamplerLPFirst
+from Sampling.Samplers.LPFirst_Samplers.RandomWalkerJumpsSamplerLPFirst import RandomWalkerJumpsSamplerLPFirst
+
+from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsSamplerLPCentralized import \
+    RandomWalkerJumpsSamplerLPCentralized
 from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPCentralized import \
     RandomWalkerJumpsWithPrioritizationSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomWalkSamplerLPCentralized import RandomWalkSamplerLPCentralized
 from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerWithPrioritizationSamplerLPCentralized import \
     RandomWalkerWithPrioritizationSamplerLPCentralized
-from Sampling.Samplers.LPFirst_Samplers.RandomWalkSamplerLPFirst import RandomWalkSamplerLPFirst
+from Sampling.Samplers.LPCentralized_Samplers.RandomNodeSamplerLPCentralized import RandomNodeSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.RandomEdgeSamplerLPCentralized import RandomEdgeSamplerLPCentralized
+from Sampling.Samplers.LPCentralized_Samplers.ForestFireSamplerLPCentralized import ForestFireSamplerLPCentralized
+
+from Sampling.Samplers.ForestFireSampler import ForestFireSampler
+from Sampling.Samplers.RandomWalkSampler import RandomWalkSampler
+from Sampling.Samplers.RandomWalkerJumpsSampler import RandomWalkerJumpsSampler
+from Sampling.Samplers.RandomWalkerJumpsWithPrioritizationSampler import RandomWalkerJumpsWithPrioritizationSampler
+from Sampling.Samplers.RandomWalkerWithPrioritizationSampler import RandomWalkerWithPrioritizationSampler
+from Sampling.Samplers.NodeSampler import NodeSampler
+from Sampling.Samplers.RandomEdgeSampler import RandomEdgeSampler
 
 from ontolearn.knowledge_base import KnowledgeBase
 from ontolearn.concept_learner import EvoLearner
@@ -16,14 +37,14 @@ from ontolearn.utils import setup_logging
 
 setup_logging()
 
-with open('premier-league_lp.json') as json_file:    # <--- set dataset you want to sample here (e.g. carcinogenesis)
+with open('carcinogenesis_lp.json') as json_file:    # <--- set dataset you want to sample here (e.g. carcinogenesis)
     settings = json.load(json_file)
 
 kb = KnowledgeBase(path=settings['data_path'])
 
 sampler = RandomNodeSamplerLPCentralized(kb)    # <--- set the sampler here (e.g. RandomWalkSampler)
 
-sampled_kb = sampler.sample(3000, "premier-league_lp.json")    # <--- set the number of nodes (edges if RandomEdgeSampler) and other hyperparameters here.
+sampled_kb = sampler.sample(500, "premier-league_lp.json")    # <--- set the hyperparameters here.
 removed_individuals = sampler.get_removed_nodes()
 
 for str_target_concept, examples in settings['lp1'].items():

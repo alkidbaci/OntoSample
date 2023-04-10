@@ -16,6 +16,7 @@ class RandomNodeSamplerLPCentralized:
         the sampled graph. Focuses around LP nodes.
     """
     def __init__(self, graph: KnowledgeBase):
+        self._reasoner = None
         self._manager = None
         self._onto = None
         self._removed_nodes = None
@@ -44,7 +45,7 @@ class RandomNodeSamplerLPCentralized:
         self._sampled_nodes = set()
         self._removed_nodes = set()
         self._lpi = list(self.get_lp_individuals(lp_path))
-
+        self._reasoner = self.graph.reasoner()
         self._nodes_to_remove_len = len(self._nodes) - number_of_nodes
         if self._nodes_to_remove_len < 0:
             raise ValueError("Number of nodes to sample is greater than number of total nodes in the knowledge base")
@@ -85,6 +86,20 @@ class RandomNodeSamplerLPCentralized:
         self._sampled_nodes = set(self._nodes) - self._removed_nodes
 
         logger.info("Individuals removed: {}".format(len(self._removed_nodes)))
+
+        # check for unused data properties, concept learners like EvoLearner will throw exception if they aren't removed
+        data_properties = list(self._onto.data_properties_in_signature())
+        for dp in data_properties:
+            skip = False
+            for ind in self._sampled_nodes:
+                if list(self._reasoner.data_property_values(ind, dp)):
+                    skip = True
+                    break
+            if skip:
+                continue
+            else:
+                self._manager.remove_axiom(self._onto, OWLDeclarationAxiom(dp))
+
         # Building new reasoner
         new_base_reasoner = OWLReasoner_Owlready2_TempClasses(ontology=self._onto)
         new_reasoner = OWLReasoner_FastInstanceChecker(ontology=self._onto,
@@ -92,7 +107,7 @@ class RandomNodeSamplerLPCentralized:
 
         new_graph = KnowledgeBase(ontology=self._onto, reasoner=new_reasoner, path=self.graph.path)
 
-        # manager.save_ontology(ontology=onto, document_iri=IRI.create('file:/test.owl'))
+        # self._manager.save_ontology(ontology=self._onto, document_iri=IRI.create('file:/test.owl'))
         return new_graph
 
     def get_removed_nodes(self):
