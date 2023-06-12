@@ -16,7 +16,7 @@ There are 3 methods to generate the result starting with the most general.
                                the learning problem.
     - `samplers` -> list of the abbreviation of the samplers as strings.
     - `sampling_percentage` -> the sampling percentage
-    - `x` -> number of iterations for each sampler ( default value 100 )
+    - `iterations` -> number of iterations for each sampler ( default value 100 )
 
     > **Note**: Keep in mind that this file needs a considerable time to execute ( more than 20 hours depending on the machine specifications).
 
