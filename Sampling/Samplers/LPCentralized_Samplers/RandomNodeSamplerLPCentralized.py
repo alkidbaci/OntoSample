@@ -69,25 +69,28 @@ class RandomNodeSamplerLPCentralized:
             if neighbors is not None:
                 two_hop_neighbors.extend(neighbors)
 
-        two_hop_nodes_to_ignore = set(neighbor.node for neighbor in two_hop_neighbors)
-        one_hop_nodes_to_ignore = set(neighbor.node for neighbor in one_hop_neighbors)
+        two_hop_nodes = set(neighbor.node for neighbor in two_hop_neighbors)
+        one_hop_nodes = set(neighbor.node for neighbor in one_hop_neighbors)
 
-        # since graph.all_individuals_set() returns a frozenset, the iteration is random each time.
-        self._remove_nodes(self._nodes, two_hop_nodes_to_ignore)
+        self._remove_nodes(self._nodes, two_hop_nodes)
 
-        # in case the number of sampled nodes is not complete then remove from the two hop neighbor nodes.
+        # In case the number of sampled nodes is not complete then remove from the two hop neighbor nodes
         if len(self._removed_nodes) < self._nodes_to_remove_len:
-            self._remove_nodes(two_hop_nodes_to_ignore, one_hop_nodes_to_ignore)
+            self._remove_nodes(two_hop_nodes, one_hop_nodes)
 
-        # in case the number of sampled nodes is still not complete then remove from the one hop neighbor nodes
+        # In case the number of sampled nodes is still not complete then remove from the one hop neighbor nodes
         if len(self._removed_nodes) < self._nodes_to_remove_len:
-            self._remove_nodes(one_hop_nodes_to_ignore, None)
+            self._remove_nodes(one_hop_nodes, None)
+
+        # In case the number of sampled nodes is still not complete then remove from the lp nodes
+        if len(self._removed_nodes) < self._nodes_to_remove_len:
+            self._remove_nodes(self._lpi, None, False)
 
         self._sampled_nodes = set(self._nodes) - self._removed_nodes
 
         logger.info("Individuals removed: {}".format(len(self._removed_nodes)))
 
-        # check for unused data properties, concept learners like EvoLearner will throw exception if they aren't removed
+        # Check for unused data properties, concept learners like EvoLearner will throw exception if they aren't removed
         data_properties = list(self._onto.data_properties_in_signature())
         for dp in data_properties:
             skip = False
@@ -116,6 +119,9 @@ class RandomNodeSamplerLPCentralized:
         """
         return set(self._removed_nodes)
 
+    def get_sampled_nodes(self):
+        return self._sampled_nodes
+
     def get_lp_individuals(self, lp_path):
         """
             :param lp_path: path of the .json file that contains the learning problems
@@ -131,16 +137,17 @@ class RandomNodeSamplerLPCentralized:
             lpi = (ind for ind in self._nodes if ind.get_iri().as_str() in pn)
             return lpi
 
-    def _remove_nodes(self, nodes, nodes_to_ignore):
+    def _remove_nodes(self, nodes, nodes_to_ignore, ignore_lp: bool = True):
         """
         :param nodes: nodes to iterate over
         :param nodes_to_ignore: nodes to ignore in the removal process
         """
+
         for i in nodes:
-            if nodes_to_ignore is None:
+            if nodes_to_ignore is None and ignore_lp:
                 if i in self._lpi:
                     continue
-            else:
+            elif nodes_to_ignore is not None:
                 if i in self._lpi or i in nodes_to_ignore:
                     continue
             self._removed_nodes.add(i)

@@ -22,6 +22,8 @@ class RandomEdgeSamplerLPCentralized(Sampler):
         self._lpi_backup = None
         self._nodes = self.graph.all_individuals_set()
         self._sampled_nodes_edges = dict()
+        self._one_hop_neighbors = list()
+        self._two_hop_neighbors = list()
 
     def _next_edge(self):
         """
@@ -53,12 +55,14 @@ class RandomEdgeSamplerLPCentralized(Sampler):
         """
         total_edges = self.number_of_edges()
         self._lpi_backup = list(self.get_lp_individuals(lp_path))
+
         if nodes_number > len(self._nodes):
             raise ValueError("The number of nodes is too large. Please make sure it "
                              "is smaller than the total number of nodes (total nodes: {})".format(len(self._nodes)))
         if data_properties_percentage > 1 or data_properties_percentage < 0:
             raise ValueError("Data properties sample percentage must be a value between 1 and 0")
         self._lpi = list(self.get_lp_individuals(lp_path))
+        self.set_one_and_two_hop_neighbors()
         stop_centralized_search_threshold = len(self._nodes) * 0.05
         no_new_nodes_counter = 0
         while len(self._sampled_nodes_edges.keys()) < nodes_number:
@@ -70,7 +74,21 @@ class RandomEdgeSamplerLPCentralized(Sampler):
             else:
                 no_new_nodes_counter = 0
             if no_new_nodes_counter > stop_centralized_search_threshold:
-                self._lpi_backup = list(self._nodes)  # stop restricting RW only to LP nodes
+                no_new_nodes_counter = 0
+                if self._lpi_backup == list(self.get_lp_individuals(lp_path)):
+                    self._lpi_backup = list(self._one_hop_neighbors)
+                elif self._lpi_backup == list(self._one_hop_neighbors):
+                    self._lpi_backup = list(self._two_hop_neighbors)
+                elif self._lpi_backup == list(self._two_hop_neighbors):
+                    self._lpi_backup = list(self._nodes)
+                else:
+                    # in case there are not enough edges in the graph, fill the remaining sample set with random nodes
+                    unexplored_nodes = self.get_removed_nodes()
+                    nodes_left_to_sample = nodes_number - len(self._sampled_nodes_edges.keys())
+                    filler_nodes = random.sample(unexplored_nodes, nodes_left_to_sample)
+                    for fn in filler_nodes:
+                        self._sampled_nodes_edges[fn] = set()
+                    break
         new_graph = self.get_subgraph_by_remove(self._sampled_nodes_edges, data_properties_percentage)
         return new_graph
 
@@ -109,3 +127,21 @@ class RandomEdgeSamplerLPCentralized(Sampler):
             pn = p.union(n)
             lpi = (ind for ind in self._nodes if ind.get_iri().as_str() in pn)
             return lpi
+
+    def set_one_and_two_hop_neighbors(self):
+
+        helper = Sampler(self.graph)
+
+        # one-hop neighbors
+        for node in self._lpi:
+            neighbors = helper.get_neighbors(node)
+            if neighbors is not None:
+                self._one_hop_neighbors.extend(ngb.node for ngb in neighbors)
+
+        self._two_hop_neighbors.extend(self._one_hop_neighbors)
+        # two-hop neighbors
+        for neighbor in self._one_hop_neighbors:
+            neighbors = helper.get_neighbors(neighbor)
+            if neighbors is not None:
+                self._two_hop_neighbors.extend(ngb.node for ngb in neighbors)
+

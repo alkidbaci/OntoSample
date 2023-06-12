@@ -30,6 +30,7 @@ class Sampler:
     """
 
     def __init__(self, graph: KnowledgeBase):
+        self._sampled_nodes_edges = None
         self.graph = graph
         self._reasoner = graph.reasoner()
         self._ontology = graph.ontology()
@@ -96,7 +97,7 @@ class Sampler:
             edges as values
             :return: Sample of the Graph
         """
-
+        self._sampled_nodes_edges = sampled_nodes_edges
         for node in self._nodes:
             if node not in sampled_nodes_edges:
                 self._manager.remove_axiom(self._ontology, OWLDeclarationAxiom(node))
@@ -106,9 +107,11 @@ class Sampler:
                 # Storing every data property for each node
                 if data_properties_percentage < 1:
                     self._store_data_properties(node)
+        # self._remove_unused_data_properties(sampled_nodes_edges.keys())
         # Removing specific percentage (data_properties_percentage) of data properties for each node
         if data_properties_percentage < 1:
             self._sample_data_properties(data_properties_percentage)
+
 
         new_base_reasoner = OWLReasoner_Owlready2_TempClasses(ontology=self._ontology)
         new_reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
@@ -117,6 +120,9 @@ class Sampler:
 
         # self._manager.save_ontology(ontology=self._ontology, document_iri=IRI.create('file:/test.owl'))
         return new_graph
+
+    def get_sampled_nodes(self):
+        return self._sampled_nodes_edges.keys()
 
     def _remove_unselected_edges(self, node, sampled_nodes_edges):
         """
@@ -158,3 +164,21 @@ class Sampler:
             while self._all_dp_axioms[node] and 1 - dpp > nr_of_removed_axioms / nr_of_dp_axioms_of_node:
                 self._manager.remove_axiom(self._ontology, self._all_dp_axioms[node].pop())
                 nr_of_removed_axioms += 1
+
+    def _remove_unused_data_properties(self, sampled_nodes):
+        """
+            Check for unused data properties and removes them because some concept learners like EvoLearner
+            will throw exception if they aren't removed
+
+            :param sampled_nodes: sampled nodes that need to be checked in case a data property is not used among them
+        """
+        for dp in self._data_properties:
+            skip = False
+            for ind in sampled_nodes:
+                if list(self._reasoner.data_property_values(ind, dp)):
+                    skip = True
+                    break
+            if skip:
+                continue
+            else:
+                self._manager.remove_axiom(self._ontology, OWLDeclarationAxiom(dp))
