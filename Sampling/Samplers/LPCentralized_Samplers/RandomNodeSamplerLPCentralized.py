@@ -6,7 +6,7 @@ from owlapy.fast_instance_checker import OWLReasoner_FastInstanceChecker
 from owlapy.model import OWLDeclarationAxiom, IRI
 from owlapy.owlready2.temp_classes import OWLReasoner_Owlready2_TempClasses
 import logging
-
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +142,8 @@ class RandomNodeSamplerLPCentralized:
         :param nodes: nodes to iterate over
         :param nodes_to_ignore: nodes to ignore in the removal process
         """
-
+        nodes_list = list(nodes)
+        random.shuffle(nodes_list)
         for i in nodes:
             if nodes_to_ignore is None and ignore_lp:
                 if i in self._lpi:
