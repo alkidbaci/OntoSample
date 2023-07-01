@@ -54,14 +54,14 @@ class EvaluationRow:
 
 
 # Datasets: "mutagenesis_lp.json","premier-league_lp.json","nctrer_lp.json","hepatitis_lp.json","carcinogenesis_lp.json"
-datasets_path = {"nctrer_lp.json", "mutagenesis_lp.json", "hepatitis_lp.json", "carcinogenesis_lp.json"}
+datasets_path = {"mutagenesis_lp.json","premier-league_lp.json","nctrer_lp.json","hepatitis_lp.json","carcinogenesis_lp.json"}
 
 # Samplers: "RNLPC","RWLPC","RWJLPC","RWPLPC","RWJPLPC","RELPC","FFLPC"
 samplers = {"RNLPC", "RWLPC", "RWJLPC", "RWPLPC", "RWJPLPC", "RELPC", "FFLPC"}
 
 
 evaluation_table = list()
-sampling_percentage = 0.1  # <-- sampling faction
+sampling_percentage = 0.01  # <-- sampling faction
 for path in datasets_path:
     with open(path) as json_file:
         settings = json.load(json_file)
@@ -74,7 +74,7 @@ for path in datasets_path:
             continue
         if path == "mutagenesis_lp.json" and (smp == "RW" or smp == "RWP" or smp == "RWLPC" or smp == "RWPLPC"):
             continue
-        iterations = 1  # <-- number of iterations
+        iterations = 100  # <-- number of iterations
         f1_sum = 0
         accuracy_sum = 0
         QualityList = list()
