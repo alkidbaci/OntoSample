@@ -1,10 +1,8 @@
 import random
 from ontolearn.knowledge_base import KnowledgeBase
 from owlapy.fast_instance_checker import OWLReasoner_FastInstanceChecker
-from owlapy.model import OWLNamedIndividual, IRI, OWLObjectPropertyAssertionAxiom, \
-    OWLClassAssertionAxiom, AddImport, OWLImportsDeclaration, OWLOntologyManager, OWLOntology, \
-    OWLDataPropertyAssertionAxiom, OWLReasoner, OWLDeclarationAxiom
-from owlapy.owlready2 import OWLOntologyManager_Owlready2
+from owlapy.model import OWLNamedIndividual, OWLObjectPropertyAssertionAxiom, \
+    OWLDataPropertyAssertionAxiom, OWLDeclarationAxiom
 from owlapy.owlready2.temp_classes import OWLReasoner_Owlready2_TempClasses
 import logging
 
@@ -107,11 +105,10 @@ class Sampler:
                 # Storing every data property for each node
                 if data_properties_percentage < 1:
                     self._store_data_properties(node)
-        # self._remove_unused_data_properties(sampled_nodes_edges.keys())
+        self._remove_unused_data_properties(sampled_nodes_edges.keys())
         # Removing specific percentage (data_properties_percentage) of data properties for each node
         if data_properties_percentage < 1:
             self._sample_data_properties(data_properties_percentage)
-
 
         new_base_reasoner = OWLReasoner_Owlready2_TempClasses(ontology=self._ontology)
         new_reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
