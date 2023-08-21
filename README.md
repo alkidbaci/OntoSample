@@ -1,4 +1,24 @@
 # OntoSample
+This repository was used in the following study:
+
+[Accelerating Concept Learning via Sampling](https://doi.org/10.1145/3583780.3615158)
+
+## Abstact
+
+Node classification is an important task in many fields, e.g., predicting entity types in knowledge graphs, classifying papers in citation
+graphs, or classifying nodes in social networks. In many cases, it
+is crucial to explain why certain predictions are made. Towards
+this end, concept learning has been proposed as a means of interpretable node classification: given positive and negative examples
+in a knowledge base, concepts in description logics are learned that
+serve as classification models. However, state-of-the-art concept
+learners, including EvoLearner and CELOE exhibit long runtimes.
+In this paper, we propose to accelerate concept learning with graph
+sampling techniques. We experiment with seven techniques and tailor them to the setting of concept learning. In our experiments, we
+achieve a reduction in training size by over 90% while maintaining
+a high predictive performance.
+
+
+
 We have implemented our code inside the [OntoLearn](https://github.com/dice-group/Ontolearn/tree/develop) library 
 and our work can be found inside the folder named Sampling.
 
@@ -8,9 +28,36 @@ The LPC samplers can be found inside `Sampling/Samplers/LPCentralized_Samplers`
 > You can download all the SML-bench datasets [here](https://github.com/SmartDataAnalytics/SML-Bench/tree/updates/learningtasks).
 > They need to go to their respective folder named after them inside KGs directory.
 
+## Installation from source
+
+Make sure to set up a virtual python environment like [Anaconda](https://www.anaconda.com/) 
+before continuing with the installation. 
+
+
+To successfully pass all the tests you need to download some external resources in advance 
+(see [_Download external files_](#download-external-files-link-files)). We recommend to
+download them all. Also, install _java_ and _curl_ if you don't have them in your system:
+
+```commandline
+sudo apt install openjdk-11-jdk
+sudo apt install curl
+```
+
+A quick start up will be as follows:
+
+```shell
+git clone https://github.com/dice-group/Ontolearn.git && conda create --name onto python=3.8 && conda activate onto 
+# Incase needed
+# conda env update --name onto
+python -c 'from setuptools import setup; setup()' develop
+python -c "import ontolearn"
+python -m pytest tests # Partial test with pytest
+tox  # full test with tox
+```
+
 ## Reproducing the results
 
-The main results are given by Figure 1 and Table2. Below are given the 
+The main results in the paper are given by Figure 1 and Table2. Below are given the 
 instructions to reproduce the results. The following script generates every
 single result for a dataset-sampler-sampling size combination and in the end
 of each combination inside the csv, it adds the values that are then put in Table 2 and Figure 1.
