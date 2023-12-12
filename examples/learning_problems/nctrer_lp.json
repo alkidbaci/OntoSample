@@ -1,5 +1,5 @@
 {
-  "data_path": "../KGs/Nctrer/nctrer.owl",
+  "data_path": "../../KGs/Nctrer/nctrer.owl",
   "lp1": {
     "target_concept": {
       "positive_examples": ["http://dl-learner.org/nctrer/1",

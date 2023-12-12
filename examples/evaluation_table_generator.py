@@ -3,29 +3,12 @@ import math
 import time
 import csv
 from argparse import ArgumentParser
-import random
 
-from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsSamplerLPCentralized import \
-    RandomWalkerJumpsSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerJumpsWithPrioritizationSamplerLPCentralized import \
-    RandomWalkerJumpsWithPrioritizationSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.RandomWalkSamplerLPCentralized import RandomWalkSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.RandomWalkerWithPrioritizationSamplerLPCentralized import \
-    RandomWalkerWithPrioritizationSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.RandomNodeSamplerLPCentralized import RandomNodeSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.RandomEdgeSamplerLPCentralized import RandomEdgeSamplerLPCentralized
-from Sampling.Samplers.LPCentralized_Samplers.ForestFireSamplerLPCentralized import ForestFireSamplerLPCentralized
-
-from Sampling.Samplers.ForestFireSampler import ForestFireSampler
-from Sampling.Samplers.RandomWalkSampler import RandomWalkSampler
-from Sampling.Samplers.RandomWalkerJumpsSampler import RandomWalkerJumpsSampler
-from Sampling.Samplers.RandomWalkerJumpsWithPrioritizationSampler import RandomWalkerJumpsWithPrioritizationSampler
-from Sampling.Samplers.RandomWalkerWithPrioritizationSampler import RandomWalkerWithPrioritizationSampler
-from Sampling.Samplers.NodeSampler import NodeSampler
-from Sampling.Samplers.RandomEdgeSampler import RandomEdgeSampler
+from ontosample.classic_samplers import *
+from ontosample.lpc_samplers import *
 
 from ontolearn.knowledge_base import KnowledgeBase
-from ontolearn.concept_learner import EvoLearner, CELOE
+# from ontolearn.concept_learner import EvoLearner, CELOE     # <--- pip install ontolearn
 from ontolearn.learning_problem import PosNegLPStandard
 from ontolearn.metrics import F1, Accuracy
 from owlapy.model import OWLNamedIndividual, IRI
@@ -47,10 +30,16 @@ class EvaluationRow:
 
 
 def start(args):
-    # Datasets: "mutagenesis_lp.json","premier-league_lp.json","nctrer_lp.json","hepatitis_lp.json","carcinogenesis_lp.json"
+    # Learning problems: "learning_problems/mutagenesis_lp.json",
+    #            "learning_problems/premier-league_lp.json",
+    #            "learning_problems/nctrer_lp.json",
+    #            "learning_problems/hepatitis_lp.json",
+    #            "learning_problems/carcinogenesis_lp.json"
     datasets_path = args.datasets
 
-    # Samplers: "RNLPC","RWLPC","RWJLPC","RWPLPC","RWJPLPC","RELPC","FFLPC"
+    # Samplers: "RNLPC","RWLPC","RWJLPC","RWPLPC","RWJPLPC","RELPC","FFLPC", "RN", "RW", "RWJ", "RWP", "RWJP",
+    # "RE", "FF"
+
     samplers = args.samplers
 
     evaluation_table = list()
@@ -75,57 +64,57 @@ def start(args):
                 iterations = args.iterations  # <-- number of iterations
                 f1_sum = 0
                 accuracy_sum = 0
-                QualityList = list()
-                QualityList2 = list()
+                quality_list = list()
+                quality_list2 = list()
                 average_runtime = 0
-                isLPC = False
+                is_lpc = False
                 for i in range(0, iterations):
                     kb = KnowledgeBase(path=settings['data_path'])
                     if smp == "RN":
                         sampler = NodeSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "RW":
                         sampler = RandomWalkSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "RWJ":
                         sampler = RandomWalkerJumpsSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "RWP":
                         sampler = RandomWalkerWithPrioritizationSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "RE":
                         sampler = RandomEdgeSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "RWJP":
                         sampler = RandomWalkerJumpsWithPrioritizationSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "FF":
                         sampler = ForestFireSampler(kb)
-                        isLPC = False
+                        is_lpc = False
                     elif smp == "FFLPC":
                         sampler = ForestFireSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RWLPC":
                         sampler = RandomWalkSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RWJLPC":
                         sampler = RandomWalkerJumpsSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RWPLPC":
                         sampler = RandomWalkerWithPrioritizationSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RWJPLPC":
                         sampler = RandomWalkerJumpsWithPrioritizationSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RNLPC":
                         sampler = RandomNodeSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
                     elif smp == "RELPC":
                         sampler = RandomEdgeSamplerLPCentralized(kb)
-                        isLPC = True
+                        is_lpc = True
 
                     print(f"---------Dataset:{path} Sampler: {smp}----------")
-                    if isLPC:
+                    if is_lpc:
                         sampled_kb = sampler.sample(samples_nr, lp_path=path)
                     else:
                         sampled_kb = sampler.sample(samples_nr)
@@ -184,8 +173,8 @@ def start(args):
                         e = kb.evaluate_concept(hypothesis[0].concept, F1(), encoded_lp)
                         e2 = kb.evaluate_concept(hypothesis[0].concept, Accuracy(), encoded_lp)
                         print(f'F1: {e.q} Accuracy: {e2.q}')
-                        QualityList.append(e.q)
-                        QualityList2.append(e2.q)
+                        quality_list.append(e.q)
+                        quality_list2.append(e2.q)
                         f1_sum += e.q
                         accuracy_sum += e2.q
                         print(f"Done: {i + 1}")
@@ -196,7 +185,7 @@ def start(args):
                 accuracy_mean = accuracy_sum / iterations
                 f1_sd = 0
                 accuracy_sd = 0
-                for q in QualityList:
+                for q in quality_list:
                     d = abs(q - f1_mean)
                     d_2 = d * d
                     f1_sd += d_2
@@ -204,7 +193,7 @@ def start(args):
                 f1_sd = f1_sd / iterations
                 f1_sd = math.sqrt(f1_sd)
 
-                for q in QualityList2:
+                for q in quality_list2:
                     d = abs(q - accuracy_mean)
                     d_2 = d * d
                     accuracy_sd += d_2
@@ -234,9 +223,11 @@ def start(args):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--learner", type=str, default="evolearner", choices={"evolearner", "celoe"})
-    parser.add_argument("--datasets", type=list, default={"mutagenesis_lp.json", "premier-league_lp.json",
-                                                          "nctrer_lp.json", "hepatitis_lp.json",
-                                                          "carcinogenesis_lp.json"})
+    parser.add_argument("--datasets_and_lp", type=list, default={"learning_problems/mutagenesis_lp.json",
+                                                          "learning_problems/premier-league_lp.json",
+                                                          "learning_problems/nctrer_lp.json",
+                                                          "learning_problems/hepatitis_lp.json",
+                                                          "learning_problems/carcinogenesis_lp.json"})
     parser.add_argument("--samplers", type=list, default={"RNLPC", "RWLPC", "RWJLPC", "RWPLPC", "RWJPLPC", "RELPC",
                                                           "FFLPC", "RN", "RW", "RWJ", "RWP", "RWJP", "RE",
                                                           "FF"})

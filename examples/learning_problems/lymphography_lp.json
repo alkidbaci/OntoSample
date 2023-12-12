@@ -1,5 +1,5 @@
 {
-  "data_path": "../KGs/Lymphography/lymphography.owl",
+  "data_path": "../../KGs/Lymphography/lymphography.owl",
   "lp1": {
     "lymphography_target_concept": {
       "positive_examples": ["http://www.example.org/lymphography#2",

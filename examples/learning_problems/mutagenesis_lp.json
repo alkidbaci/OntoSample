@@ -1,5 +1,5 @@
 {
-  "data_path": "../KGs/Mutagenesis/mutagenesis.owl",
+  "data_path": "../../KGs/Mutagenesis/mutagenesis.owl",
   "lp1": {
     "target_concept": {
       "positive_examples": ["http://dl-learner.org/mutagenesis#d190",

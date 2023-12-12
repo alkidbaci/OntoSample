@@ -1,5 +1,5 @@
 {
-  "data_path": "../KGs/Hepatitis/hepatitis.owl",
+  "data_path": "../../KGs/Hepatitis/hepatitis.owl",
   "lp1": {
     "hepatitis_target_concept": {
       "positive_examples": ["http://dl-learner.org/res/patient1",
