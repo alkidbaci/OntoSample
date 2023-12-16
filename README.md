@@ -9,7 +9,11 @@ Paper: [Accelerating Concept Learning via Sampling](https://doi.org/10.1145/3583
 
 ## Installation
 
-Soon will be available on pipy.
+```shell
+pip install ontosample
+```
+
+or
 
 ```shell
 # 1. clone 
@@ -29,19 +33,19 @@ pip install -r requirements.txt
 from ontolearn.knowledge_base import KnowledgeBase
 from ontosample.classic_samplers import RandomNodeSampler
 
-# 1. Initialize knowledge base
+# 1. Initialize KnowledgeBase object using the path of the ontology
 kb = KnowledgeBase(path="KGs/Family/family-benchmark_rich_background.owl")
 
 # 2. Initialize the sampler and generate the sample
 sampler = RandomNodeSampler(kb)
 sampled_kb = sampler.sample(30) # will generate a sample with 30 nodes
 
-# 3. Save the sampled graph
+# 3. Save the sampled ontology
 sampler.save_sample()
 
 ```
 
-Check the examples folder for more.
+Check the [examples](https://github.com/alkidbaci/OntoSample/tree/main/examples) folder for more.
 
 
 ## About the paper
