@@ -23,7 +23,8 @@ class Neighbor:
 class Node:
     """
         Class structure to save individuals (nodes) of the graph in a way that we can calculate pagerank for each of
-        them.
+        them. This is not the 'node' we refer to in the other docstrings. This is used only for random walker with
+        prioritization.
     """
     def __init__(self, IRI):
         self.IRI = IRI
@@ -33,10 +34,11 @@ class Node:
 
     def update_pagerank(self, d, n):
         """
-            Updates the pagerank of a single node
+            Updates the pagerank of a single node.
 
-            :param d: dumping factor, tha weakly connects all the nodes in the graph
-            :param n: total number of nodes in the graph
+            Args:
+                d: Dumping factor, tha weakly connects all the nodes in the graph.
+                n: Total number of nodes in the graph.
         """
         incoming = self.incoming
         pr_sum = sum((node.pagerank / len(node.outgoing)) for node in incoming)
@@ -46,17 +48,14 @@ class Node:
 class Sampler:
     """
        Base class for sampling techniques.
-
-       Args:
-           graph (KnowledgeBase): The knowledge base object that you want to sample.
     """
 
     def __init__(self, graph: KnowledgeBase):
         """
-            Init
+            Base class for sampling techniques.
 
-           Args:
-               graph (KnowledgeBase): The knowledge base object that you want to sample.
+            Args:
+                graph (KnowledgeBase): The knowledge base object that you want to sample.
         """
         self._sampled_nodes_edges = dict()
         self.graph = graph
@@ -72,11 +71,13 @@ class Sampler:
         """
             Gets the neighbor of the current node which has the highest pagerank.
 
-            :param node: the current node
-            :param nodes_dict: The dictionary which has for each OWLNamedIndividual(node) of the graph the corresponding
-            representation by "Node" class structure
-            :return: neighbor of the current node with the highest pagerank or None if the current node does not have
-            any neighbors
+            Args:
+                node: The current node.
+                nodes_dict: The dictionary which has for each OWLNamedIndividual(node) of the graph the corresponding
+                    representation by "Node" class structure.
+            Returns:
+                Neighbor of the current node with the highest pagerank or None if the current node does not have
+                any neighbors.
         """
 
         neighbors = self.get_neighbors(node)
@@ -93,9 +94,12 @@ class Sampler:
         """
             Gets a random neighbor node of the current node.
 
-            :param node: the current node
-            :return: random neighbor of the current node as an object type Neighbor or None if the current node does not
-            have any neighbors
+            Args:
+                node: The current node.
+
+            Returns:
+                Random neighbor of the current node as an object type Neighbor or None if the current node does not
+                have any neighbors.
         """
 
         neighbors = self.get_neighbors(node)
@@ -107,6 +111,10 @@ class Sampler:
             return None
 
     def get_neighbors(self, node) -> list[Neighbor]:
+        """
+            Get all neighbors of a given node.
+        """
+
         neighbors = []
         for op in self._object_properties:
             object_nodes = self._reasoner.object_property_values(node, op)
@@ -116,7 +124,12 @@ class Sampler:
         return neighbors
 
     def get_neighborhood_from_nodes(self, starting_set: Iterable[OWLNamedIndividual]):
+        """
+            Get all the neighbors (the neighborhood) of a given set of nodes.
 
+            Args:
+                starting_set: An Iterable object of individuals (nodes).
+        """
         neighborhood = list()
         # one-hop neighbors
         for node in starting_set:
@@ -131,11 +144,14 @@ class Sampler:
             Builds and returns the sampled graph based on the sampled_nodes_edges and dpp by removing axioms from
             the original ontology.
 
-            :param include_all_edges Whether to include all edges (object properties) that connect the remaining
-            nodes (individuals) in the sample graph
-            :param data_properties_percentage: Percentage of data properties inclusion for each node( values from 0-1 )
-            edges as values
-            :return: Sample of the Graph
+            Args:
+                include_all_edges: Whether to include all edges (object properties) that connect the remaining
+                    nodes (individuals) in the sample graph
+                data_properties_percentage: Percentage of data properties inclusion for each node( values from 0-1 )
+                    edges as values.
+
+            Returns:
+                Sample of the graph/ontology (of type KnowledgeBase).
         """
         assert len(self._sampled_nodes_edges) > 0, "The current sample is empty"
 
@@ -163,17 +179,31 @@ class Sampler:
         return new_graph
 
     def save_sample(self):
+        """
+            Save the sampled graph/ontology in a local file.
+            The name of the file will be the same as original with "_sample_" and the size of the sample in terms
+             of nodes number in the end.
+        """
         filename = f'file:/{self.graph.path.split("/")[-1].replace(".owl", "")}_sample_' \
                    f'{len(self._sampled_nodes_edges)}.owl'
         self._manager.save_ontology(ontology=self._ontology, document_iri=IRI.create(filename))
 
     def get_sampled_nodes(self):
+        """
+            Return the sampled nodes.
+        """
         return self._sampled_nodes_edges.keys()
 
     def get_removed_nodes(self):
+        """
+         Return the removed nodes from the original graph/ontology.
+        """
         return set(self._nodes) - set(self._sampled_nodes_edges.keys())
 
     def check_input(self, nodes_number, data_properties_percentage):
+        """
+            Check user's input.
+        """
         if nodes_number > len(self._nodes):
             raise ValueError("The number of nodes is too large. Please make sure it "
                              "is smaller than the total number of nodes (total nodes: {})".format(len(self._nodes)))
@@ -183,9 +213,10 @@ class Sampler:
 
     def _remove_unselected_edges(self, node):
         """
-            Removing all the edges of "node" except the one selected by the sampler
+            Removing all the edges of "node" except those selected by the sampler.
 
-            :param node: node, edges of which, will be iterated over.
+            Args:
+                node: Node, edges of which, will be iterated over.
         """
         for op in self._object_properties:
             object_nodes = self._reasoner.object_property_values(node, op)
@@ -199,7 +230,8 @@ class Sampler:
         """
             Storing every data property for each node to the _all_dp_axioms dictionary
 
-            :param node: node, data properties of which, will be stored.
+            Args:
+                node: Node, data properties of which, will be stored.
         """
         self._all_dp_axioms[node] = list()
         for dp in self._data_properties:
@@ -210,9 +242,10 @@ class Sampler:
 
     def _sample_data_properties(self, dpp):
         """
-            Removing specific percentage (dpp) of data properties for each node
+            Removing specific percentage (dpp) of data properties for each node.
 
-            :param dpp: Percentage of data properties inclusion for each node( values from 0-1 )
+            Args:
+                dpp: Percentage of data properties inclusion for each node (represented in values from 0-1).
         """
         for node in self._all_dp_axioms.keys():
             nr_of_dp_axioms_of_node = len(self._all_dp_axioms[node])
@@ -223,8 +256,7 @@ class Sampler:
 
     def _remove_unused_data_properties(self):
         """
-            Check for unused data properties and removes them because some concept learners like EvoLearner
-            will throw exception if they aren't removed
+            Check for unused data properties and removes them.
         """
         for dp in self._data_properties:
             skip = False

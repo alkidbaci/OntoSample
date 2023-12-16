@@ -177,7 +177,7 @@ class RandomWalkSamplerLPCentralized(RandomWalkSampler):
 class RandomWalkerJumpsSamplerLPCentralized(RandomWalkSamplerLPCentralized):
     """
         Random walker jumps sampling learning problem(LP) centralized. Creates a subgraph by walking
-        randomly in neighborhood of the LP nodes in the graph. Jump probability helps to escape loops
+        randomly in the graph and focusing around the LP nodes. Jump probability helps to escape loops
         (infinite execution).
     """
 
@@ -215,7 +215,8 @@ class RandomWalkerJumpsSamplerLPCentralized(RandomWalkSamplerLPCentralized):
 class RandomWalkerWithPrioritizationSamplerLPCentralized(RandomWalkSamplerLPCentralized,
                                                          RandomWalkerWithPrioritizationSampler):
     """
-        Random walker with prioritization sampling LP centralized.
+        Random walker with prioritization sampling LP centralized. Like RandomWalkerWithPrioritizationSampler, but it
+        focuses around LP nodes.
     """
 
     def _next_node(self):
@@ -237,7 +238,8 @@ class RandomWalkerWithPrioritizationSamplerLPCentralized(RandomWalkSamplerLPCent
 
 class RandomWalkerJumpsWithPrioritizationSamplerLPCentralized(RandomWalkerWithPrioritizationSamplerLPCentralized):
     """
-        Implementation of random walker jumps with prioritization sampling LP centralized.
+        Random walker jumps with prioritization sampling LP centralized. Like
+        RandomWalkerJumpsWithPrioritizationSampler, but it focuses around LP nodes.
     """
 
     def __init__(self, graph: KnowledgeBase, lp_nodes: Iterable[OWLNamedIndividual]):

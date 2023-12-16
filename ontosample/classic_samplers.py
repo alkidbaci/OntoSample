@@ -206,13 +206,14 @@ class RandomWalkerJumpsSampler(RandomWalkSampler):
 
 class RandomWalkerWithPrioritizationSampler(RandomWalkSampler):
     """
-        Random walker with prioritization sampling.
+        Random walker with prioritization sampling. Like random walk sampler, but it prioritizes the nodes based on
+        their page rank value. The higher the page rank, the more chance for it to be selected.
     """
 
     def _nodes_list_set_up(self):
         """
-            Creates a dictionary that is used to save each individual(node) in the graph by the new structure "Node" which
-            will be used to calculate page rank for each of them.
+            Creates a dictionary that is used to save each individual(node) in the graph by the new structure "Node"
+            which will be used to calculate page rank for each of them.
         """
         self._nodes_dict = dict()
         object_properties = list(self._ontology.object_properties_in_signature())
@@ -284,7 +285,7 @@ class RandomWalkerWithPrioritizationSampler(RandomWalkSampler):
 
 class RandomWalkerJumpsWithPrioritizationSampler(RandomWalkerWithPrioritizationSampler):
     """
-        Random walker jumps with prioritization sampling.
+        Random walker jumps with prioritization sampling. Like random walker jumps but with prioritization.
     """
 
     def __init__(self, graph: KnowledgeBase):

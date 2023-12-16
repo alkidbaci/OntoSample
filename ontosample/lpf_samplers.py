@@ -54,8 +54,8 @@ class RandomEdgeSamplerLPFirst(RandomEdgeSampler):
 
 class RandomWalkSamplerLPFirst(RandomWalkSampler):
     """
-        Random walk sampler LP first. Creates a subgraph by walking randomly in the graph.
-        Starts with LP nodes first.
+        Random walk sampler LP first. Creates a subgraph by walking randomly in the graph like RandomWalkSampler, but it
+        starts with LP nodes first.
     """
 
     def __init__(self, graph: KnowledgeBase, lp_nodes: Iterable[OWLNamedIndividual]):
@@ -84,7 +84,7 @@ class RandomWalkSamplerLPFirst(RandomWalkSampler):
 
 class RandomWalkerJumpsSamplerLPFirst(RandomWalkSamplerLPFirst):
     """
-        Random walker with jumps sampler LP First.
+        Random walker with jumps sampler LP First. Like RandomWalkerJumpsSampler but it starts with LP nodes first.
     """
 
     def __init__(self, graph: KnowledgeBase, lp_nodes: Iterable[OWLNamedIndividual]):
@@ -115,7 +115,8 @@ class RandomWalkerJumpsSamplerLPFirst(RandomWalkSamplerLPFirst):
 
 class RandomWalkerWithPrioritizationSamplerLPFirst(RandomWalkSamplerLPFirst, RandomWalkerWithPrioritizationSampler):
     """
-        Random walker with prioritization sampling LP first.
+        Random walker with prioritization sampling LP first. Like RandomWalkerWithPrioritizationSampler, but it starts
+        with LP nodes first.
     """
 
     def _next_node(self):
@@ -133,7 +134,8 @@ class RandomWalkerWithPrioritizationSamplerLPFirst(RandomWalkSamplerLPFirst, Ran
 class RandomWalkerJumpsWithPrioritizationSamplerLPFirst(RandomWalkerWithPrioritizationSamplerLPFirst,
                                                         RandomWalkerJumpsSamplerLPFirst):
     """
-        Random walker with jumps with prioritization sampling LP first.
+        Random walker with jumps with prioritization sampling LP first. Like RandomWalkerJumpsWithPrioritizationSampler,
+        but it starts with LP nodes first.
     """
 
     def __init__(self, graph: KnowledgeBase, lp_nodes: Iterable[OWLNamedIndividual]):
