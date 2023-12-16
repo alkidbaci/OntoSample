@@ -9,7 +9,7 @@ from ontolearn.knowledge_base import KnowledgeBase
 with open("learning_problems/uncle_lp.json") as json_file:
     examples = json.load(json_file)
 
-# 1. Initialize knowledge base
+# 1. Initialize KnowledgeBase object using the path of the ontology
 kb = KnowledgeBase(path="../KGs/Family/family-benchmark_rich_background.owl")
 print(f'Initial individuals: {kb.individuals_count()}')
 
@@ -25,5 +25,5 @@ sampled_kb = sampler.sample(30)
 print(f'Removed individuals: {len(sampler.get_removed_nodes())}')
 print(f'Remaining individuals: {sampled_kb.individuals_count()}')
 
-# 4. Save the sampled graph
+# 4. Save the sampled ontology
 sampler.save_sample()
