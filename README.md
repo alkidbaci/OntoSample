@@ -30,7 +30,7 @@ pip install -r requirements.txt
 ## Usage
 
 ```python
-from ontolearn.knowledge_base import KnowledgeBase
+from ontolearn_light.knowledge_base import KnowledgeBase
 from ontosample.classic_samplers import RandomNodeSampler
 
 # 1. Initialize KnowledgeBase object using the path of the ontology
@@ -38,10 +38,10 @@ kb = KnowledgeBase(path="KGs/Family/family-benchmark_rich_background.owl")
 
 # 2. Initialize the sampler and generate the sample
 sampler = RandomNodeSampler(kb)
-sampled_kb = sampler.sample(30) # will generate a sample with 30 nodes
+sampled_kb = sampler.sample(30)  # will generate a sample with 30 nodes
 
 # 3. Save the sampled ontology
-sampler.save_sample()
+sampler.save_sample(kb=sampled_kb, filename='sampled_kb')
 
 ```
 
