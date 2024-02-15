@@ -1,8 +1,8 @@
 import random
 import logging
 from typing import Iterable
-from ontolearn.knowledge_base import KnowledgeBase
-from ontolearn.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2
+from ontolearn_light.knowledge_base import KnowledgeBase
+from ontolearn_light.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, OWLOntologyManager_Owlready2
 from owlapy.model import OWLNamedIndividual, OWLObjectPropertyAssertionAxiom, \
     OWLDataPropertyAssertionAxiom, OWLDeclarationAxiom, IRI
 
@@ -57,12 +57,22 @@ class Sampler:
             Args:
                 graph (KnowledgeBase): The knowledge base object that you want to sample.
         """
-        self._sampled_nodes_edges = dict()
         self.graph = graph
-        self._reasoner = graph.reasoner()
-        self._ontology = graph.ontology()
+        self._sampled_nodes_edges = dict()
+        self._reasoner = graph.reasoner
+        self._ontology = graph.ontology
         self._manager = self._ontology.get_owl_ontology_manager()
         self._nodes = list(graph.all_individuals_set())
+        self._object_properties = list(self._ontology.object_properties_in_signature())
+        self._data_properties = list(self._ontology.data_properties_in_signature())
+        self._all_dp_axioms = dict()
+
+    def reset(self):
+        self._sampled_nodes_edges = dict()
+        self._reasoner = self.graph.reasoner
+        self._ontology = self.graph.ontology
+        self._manager = self._ontology.get_owl_ontology_manager()
+        self._nodes = list(self.graph.all_individuals_set())
         self._object_properties = list(self._ontology.object_properties_in_signature())
         self._data_properties = list(self._ontology.data_properties_in_signature())
         self._all_dp_axioms = dict()
@@ -153,6 +163,13 @@ class Sampler:
             Returns:
                 Sample of the graph/ontology (of type KnowledgeBase).
         """
+
+        self._manager = OWLOntologyManager_Owlready2()
+        self._ontology = self._manager.load_ontology(self.graph.ontology.get_original_iri())
+        self._reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
+                                                         base_reasoner=OWLReasoner_Owlready2(
+                                                            ontology=self._ontology))
+
         assert len(self._sampled_nodes_edges) > 0, "The current sample is empty"
 
         for node in self._nodes:
@@ -170,39 +187,41 @@ class Sampler:
         if data_properties_percentage < 1:
             self._sample_data_properties(data_properties_percentage)
 
-        new_base_reasoner = OWLReasoner_Owlready2(ontology=self._ontology)
-        new_reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
-                                                       base_reasoner=new_base_reasoner)
-        new_graph = KnowledgeBase(ontology=self._ontology, reasoner=new_reasoner, path=self.graph.path)
-
-        # self._manager.save_ontology(ontology=self._ontology, document_iri=IRI.create('file:/test.owl'))
+        new_graph = KnowledgeBase(ontology=self._ontology, reasoner=self._reasoner)
+        self.reset()
         return new_graph
 
-    def save_sample(self):
+    @staticmethod
+    def save_sample(kb: KnowledgeBase, filename: str = None):
         """
             Save the sampled graph/ontology in a local file.
-            The name of the file will be the same as original with "_sample_" and the size of the sample in terms
-             of nodes number in the end.
-        """
-        filename = f'file:/{self.graph.path.split("/")[-1].replace(".owl", "")}_sample_' \
-                   f'{len(self._sampled_nodes_edges)}.owl'
-        self._manager.save_ontology(ontology=self._ontology, document_iri=IRI.create(filename))
+            If no filename is given, the name of the file will be the same as original with "_sample_" and the size
+            of the sample in terms of nodes number in the end.
 
-    def get_sampled_nodes(self):
+            Args:
+                kb (KnowledgeBase): The KnowledgeBase object that you want to save
+                filename (str): The name of the file that will store the KB. Example: 'sampled_kb'
         """
-            Return the sampled nodes.
-        """
-        return self._sampled_nodes_edges.keys()
+        onto = kb.ontology
+        if filename:
+            if len(filename) > 4 and filename[-4:] == ".owl":
+                filename = f'file:/{filename}'
+            else:
+                filename = f'file:/{filename}.owl'
+        else:
+            filename = f'file:/{onto.get_original_iri().as_str().split("/")[-1].replace(".owl", "")}_sample_' \
+                   f'{len(list(onto.individuals_in_signature()))}.owl'
+        onto.get_owl_ontology_manager().save_ontology(ontology=onto, document_iri=IRI.create(filename))
 
-    def get_removed_nodes(self):
+    def _get_removed_nodes(self):
         """
-         Return the removed nodes from the original graph/ontology.
+         Return the removed nodes from the original graph/ontology. Used only for background processes.
         """
         return set(self._nodes) - set(self._sampled_nodes_edges.keys())
 
     def check_input(self, nodes_number, data_properties_percentage):
         """
-            Check user's input.
+            Check validity of user's input.
         """
         if nodes_number > len(self._nodes):
             raise ValueError("The number of nodes is too large. Please make sure it "
