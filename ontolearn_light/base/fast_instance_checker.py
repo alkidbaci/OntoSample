@@ -6,9 +6,10 @@ import owlready2
 from functools import singledispatchmethod, reduce
 from itertools import repeat, chain
 from types import MappingProxyType, FunctionType
-from typing import DefaultDict, Iterable, Dict, Mapping, Set, Type, TypeVar, Optional, FrozenSet
+from typing import DefaultDict, Iterable, Dict, Mapping, Set, Type, TypeVar, Optional, FrozenSet, cast
 
-from ontolearn.base.ext import OWLReasonerEx
+from ontolearn_light.base import OWLReasoner_Owlready2
+from ontolearn_light.base.ext import OWLReasonerEx
 from owlapy.model import OWLDataRange, OWLObjectOneOf, OWLOntology, OWLNamedIndividual, OWLClass, \
     OWLObjectProperty, OWLDataProperty, OWLObjectUnionOf, OWLObjectIntersectionOf, OWLObjectSomeValuesFrom, \
     OWLObjectPropertyExpression, OWLObjectComplementOf, OWLObjectAllValuesFrom, IRI, OWLObjectInverseOf, \
@@ -68,12 +69,7 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
                 :func:`OWLReasoner_FastInstanceChecker.instances` retrieval.
             """
         super().__init__(ontology)
-        if base_reasoner.is_using_triplestore():
-            print("WARN  OWLReasoner    :: Instance retrieval will be performed via triplestore using SPARQL query "
-                  "because you have entered a triplestore address for the `base_reasoner`. The `instances` method will "
-                  "default to the implementation in the base_reasoner and every functionality offered by "
-                  "OWLReasoner_FastInstanceChecker will be irrelevant to this method ")
-        if base_reasoner.is_isolated() and not base_reasoner.is_using_triplestore():
+        if base_reasoner.is_isolated():
             self._ontology = base_reasoner.get_root_ontology()
         else:
             self._ontology = ontology
@@ -110,7 +106,8 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
         return self._base_reasoner.is_isolated()
 
     def is_using_triplestore(self):
-        return self._base_reasoner.is_using_triplestore()
+        # TODO: Deprecated! Remove after it is removed from OWLReasoner in owlapy
+        pass
 
     def data_property_domains(self, pe: OWLDataProperty, direct: bool = False) -> Iterable[OWLClassExpression]:
         yield from self._base_reasoner.data_property_domains(pe, direct=direct)
@@ -151,15 +148,12 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
         self._base_reasoner.flush()
 
     def instances(self, ce: OWLClassExpression, direct: bool = False) -> Iterable[OWLNamedIndividual]:
-        if self._base_reasoner.is_using_triplestore():
-            yield from self._base_reasoner.instances(ce, direct)
-        else:
-            if direct:
-                if not self.__warned & 2:
-                    logger.warning("direct not implemented")
-                    self.__warned |= 2
-            temp = self._find_instances(ce)
-            yield from temp
+        if direct:
+            if not self.__warned & 2:
+                logger.warning("direct not implemented")
+                self.__warned |= 2
+        temp = self._find_instances(ce)
+        yield from temp
 
     def sub_classes(self, ce: OWLClassExpression, direct: bool = False, only_named: bool = True) \
             -> Iterable[OWLClassExpression]:
@@ -187,6 +181,12 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
     def sub_data_properties(self, dp: OWLDataProperty, direct: bool = False) -> Iterable[OWLDataProperty]:
         yield from self._base_reasoner.sub_data_properties(dp=dp, direct=direct)
 
+    def super_data_properties(self, dp: OWLDataProperty, direct: bool = False) -> Iterable[OWLDataProperty]:
+        yield from self._base_reasoner.super_data_properties(dp=dp, direct=direct)
+
+    def super_object_properties(self, op: OWLObjectProperty, direct: bool = False) -> Iterable[OWLDataProperty]:
+        yield from self._base_reasoner.super_object_properties(op=op, direct=direct)
+
     def sub_object_properties(self, op: OWLObjectPropertyExpression, direct: bool = False) \
             -> Iterable[OWLObjectPropertyExpression]:
         yield from self._base_reasoner.sub_object_properties(op=op, direct=direct)
@@ -211,7 +211,7 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
         opc: DefaultDict[OWLNamedIndividual, Set[OWLNamedIndividual]] = defaultdict(set)
 
         # shortcut for owlready2
-        from ontolearn.base import OWLOntology_Owlready2
+        from ontolearn_light.base import OWLOntology_Owlready2
         if isinstance(self._ontology, OWLOntology_Owlready2):
             import owlready2
             # _x => owlready2 objects
@@ -253,7 +253,7 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
             subs = set()
 
             # shortcut for owlready2
-            from ontolearn.base import OWLOntology_Owlready2
+            from ontolearn_light.base import OWLOntology_Owlready2
             if isinstance(self._ontology, OWLOntology_Owlready2):
                 import owlready2
                 # _x => owlready2 objects
@@ -330,7 +330,7 @@ class OWLReasoner_FastInstanceChecker(OWLReasonerEx):
         opc: Dict[OWLNamedIndividual, Set[OWLLiteral]] = dict()
 
         # shortcut for owlready2
-        from ontolearn.base import OWLOntology_Owlready2
+        from ontolearn_light.base import OWLOntology_Owlready2
         if isinstance(self._ontology, OWLOntology_Owlready2):
             import owlready2
             # _x => owlready2 objects
