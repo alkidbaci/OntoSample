@@ -119,7 +119,7 @@ def start(args):
                     else:
                         sampled_kb = sampler.sample(samples_nr)
 
-                    removed_individuals = sampler._get_removed_nodes()
+                    removed_individuals = set(kb.individuals()) - set(sampled_kb.individuals())
 
                     for str_target_concept, examples in settings['lp1'].items():
                         p = set(examples['positive_examples'])
@@ -223,14 +223,14 @@ def start(args):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--learner", type=str, default="evolearner", choices={"evolearner", "celoe"})
-    parser.add_argument("--datasets_and_lp", type=list, default={"learning_problems/mutagenesis_lp.json",
+    parser.add_argument("--datasets_and_lp", nargs='+', default=["learning_problems/mutagenesis_lp.json",
                                                           "learning_problems/premier-league_lp.json",
                                                           "learning_problems/nctrer_lp.json",
                                                           "learning_problems/hepatitis_lp.json",
-                                                          "learning_problems/carcinogenesis_lp.json"})
-    parser.add_argument("--samplers", type=list, default={"RNLPC", "RWLPC", "RWJLPC", "RWPLPC", "RWJPLPC", "RELPC",
+                                                          "learning_problems/carcinogenesis_lp.json"])
+    parser.add_argument("--samplers", nargs='+', default=["RNLPC", "RWLPC", "RWJLPC", "RWPLPC", "RWJPLPC", "RELPC",
                                                           "FFLPC", "RN", "RW", "RWJ", "RWP", "RWJP", "RE",
-                                                          "FF"})
+                                                          "FF"])
     parser.add_argument("--csv_path", type=str, default="evaluation_results.csv")
     parser.add_argument("--sampling_size", type=float, default=0.10, help=" 1 ≥ sampling size > 0")
     parser.add_argument("--iterations", type=int, default=10)
