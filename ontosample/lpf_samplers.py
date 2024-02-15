@@ -3,7 +3,7 @@ import logging
 from typing import List, Iterable
 from owlapy.model import OWLNamedIndividual
 from ontosample._base import Neighbor
-from ontolearn.knowledge_base import KnowledgeBase
+from ontolearn_light.knowledge_base import KnowledgeBase
 from ontosample.classic_samplers import RandomWalkerWithPrioritizationSampler, RandomNodeSampler, \
     RandomEdgeSampler, RandomWalkSampler
 

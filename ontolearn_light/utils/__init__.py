@@ -6,7 +6,7 @@ import random
 import time
 from typing import Callable, Set, TypeVar, Tuple, Union
 
-from ontolearn.utils.log_config import setup_logging  # noqa: F401
+from ontolearn_light.utils.log_config import setup_logging  # noqa: F401
 from owlapy.model import OWLNamedIndividual, IRI, OWLClass, HasIRI
 import pandas as pd
 
@@ -52,7 +52,7 @@ def performance_debugger(func_name):
 
 
 def create_experiment_folder(folder_name='Log'):
-    from ontolearn.utils import log_config
+    from ontolearn_light.utils import log_config
     if log_config.log_dirs:
         path_of_folder = log_config.log_dirs[-1]
     else:

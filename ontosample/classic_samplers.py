@@ -5,7 +5,7 @@ from typing import List
 from collections import deque
 from owlapy.model import OWLNamedIndividual
 from ontosample._base import Sampler, Neighbor, Node
-from ontolearn.knowledge_base import KnowledgeBase
+from ontolearn_light.knowledge_base import KnowledgeBase
 
 
 logger = logging.getLogger(__name__)
@@ -387,7 +387,7 @@ class ForestFireSampler(Sampler):
             nodes and the burned node will be added to the sample set.
         """
 
-        remaining_nodes = list(self.get_removed_nodes())
+        remaining_nodes = list(self._get_removed_nodes())
         ignition_node = random.choice(remaining_nodes)
         self._sampled_nodes_edges[ignition_node] = set()
         self._burn(deque([ignition_node]))

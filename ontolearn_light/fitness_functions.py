@@ -1,8 +1,8 @@
 """Fitness functions."""
 
 from typing import Final
-from ontolearn.abstracts import AbstractFitness
-from ontolearn.ea_utils import Tree
+from ontolearn_light.abstracts import AbstractFitness
+from ontolearn_light.ea_utils import Tree
 
 
 class LinearPressureFitness(AbstractFitness):

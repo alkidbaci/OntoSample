@@ -54,7 +54,7 @@ class AbstractScorer(Generic[_N], metaclass=ABCMeta):
         if len(instances) == 0:
             return False, 0
         # @TODO: It must be moved to the top of the abstracts.py
-        from ontolearn.learning_problem import EncodedPosNegLPStandard
+        from ontolearn_light.learning_problem import EncodedPosNegLPStandard
         if isinstance(learning_problem, EncodedPosNegLPStandard):
             tp = len(learning_problem.kb_pos.intersection(instances))
             tn = len(learning_problem.kb_neg.difference(instances))
@@ -99,7 +99,7 @@ class AbstractScorer(Generic[_N], metaclass=ABCMeta):
         assert isinstance(node, AbstractNode), \
             f'Expected AbstractNode but got {type(node)}'
         # @TODO: It must be moved to the top of the abstracts.py
-        from ontolearn.search import _NodeQuality
+        from ontolearn_light.search import _NodeQuality
         assert isinstance(node, _NodeQuality), \
             f'Expected _NodeQuality but got {type(_NodeQuality)}'
 
@@ -328,16 +328,15 @@ class AbstractKnowledgeBase(metaclass=ABCMeta):
     """Abstract knowledge base."""
     __slots__ = ()
 
-    @abstractmethod
     def ontology(self) -> OWLOntology:
         """The base ontology of this knowledge base."""
         pass
 
     def describe(self) -> None:
         """Print a short description of the Knowledge Base to the info logger output."""
-        properties_count = iter_count(self.ontology().object_properties_in_signature()) + iter_count(
-            self.ontology().data_properties_in_signature())
-        logger.info(f'Number of named classes: {iter_count(self.ontology().classes_in_signature())}\n'
+        properties_count = iter_count(self.ontology.object_properties_in_signature()) + iter_count(
+            self.ontology.data_properties_in_signature())
+        logger.info(f'Number of named classes: {iter_count(self.ontology.classes_in_signature())}\n'
                     f'Number of individuals: {self.individuals_count()}\n'
                     f'Number of properties: {properties_count}')
 

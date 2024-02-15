@@ -7,12 +7,12 @@ from argparse import ArgumentParser
 from ontosample.classic_samplers import *
 from ontosample.lpc_samplers import *
 
-from ontolearn.knowledge_base import KnowledgeBase
+from ontolearn_light.knowledge_base import KnowledgeBase
 # from ontolearn.concept_learner import EvoLearner, CELOE     # <--- pip install ontolearn
-from ontolearn.learning_problem import PosNegLPStandard
-from ontolearn.metrics import F1, Accuracy
+from ontolearn_light.learning_problem import PosNegLPStandard
+from ontolearn_light.metrics import F1, Accuracy
 from owlapy.model import OWLNamedIndividual, IRI
-from ontolearn.utils import setup_logging
+from ontolearn_light.utils import setup_logging
 
 setup_logging()
 
@@ -119,7 +119,7 @@ def start(args):
                     else:
                         sampled_kb = sampler.sample(samples_nr)
 
-                    removed_individuals = sampler.get_removed_nodes()
+                    removed_individuals = sampler._get_removed_nodes()
 
                     for str_target_concept, examples in settings['lp1'].items():
                         p = set(examples['positive_examples'])

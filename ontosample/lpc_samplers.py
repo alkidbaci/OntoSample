@@ -4,7 +4,7 @@ from typing import Iterable
 from owlapy.model import OWLNamedIndividual
 from collections import deque
 from ontosample._base import Neighbor
-from ontolearn.knowledge_base import KnowledgeBase
+from ontolearn_light.knowledge_base import KnowledgeBase
 from ontosample.classic_samplers import RandomWalkerWithPrioritizationSampler, ForestFireSampler,\
     RandomWalkSampler, RandomEdgeSampler, RandomNodeSampler
 
@@ -105,7 +105,7 @@ class RandomEdgeSamplerLPCentralized(RandomEdgeSampler):
                     self._exploration_limit = self._nodes
                 else:
                     # in case there are not enough edges in the graph, fill the remaining sample set with random nodes
-                    unexplored_nodes = self.get_removed_nodes()
+                    unexplored_nodes = self._get_removed_nodes()
                     nodes_left_to_sample = nodes_number - len(self._sampled_nodes_edges.keys())
                     filler_nodes = random.sample(unexplored_nodes, nodes_left_to_sample)
                     for fn in filler_nodes:
@@ -291,7 +291,7 @@ class ForestFireSamplerLPCentralized(ForestFireSampler):
 
     def _start_a_fire(self):
         if not self._first_iter:
-            remaining_nodes = list(self.get_removed_nodes())
+            remaining_nodes = list(self._get_removed_nodes())
             ignition_node = random.choice(remaining_nodes)
             self._sampled_nodes_edges[ignition_node] = set()
             node_queue = deque([ignition_node])

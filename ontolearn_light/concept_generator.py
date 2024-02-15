@@ -2,7 +2,7 @@
 
 from typing import Iterable, List, Generator
 
-from ontolearn.utils import parametrized_performance_debugger
+from ontolearn_light.utils import parametrized_performance_debugger
 from owlapy.model import OWLObjectMaxCardinality, OWLObjectMinCardinality, OWLObjectSomeValuesFrom, \
     OWLObjectAllValuesFrom, OWLObjectIntersectionOf, OWLObjectUnionOf, OWLObjectPropertyExpression, OWLThing, \
     OWLNothing, OWLClass, OWLClassExpression, OWLObjectComplementOf, \

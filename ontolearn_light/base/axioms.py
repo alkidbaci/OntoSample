@@ -21,7 +21,7 @@ from owlapy.model import OWLDisjointUnionAxiom, OWLQuantifiedDataRestriction, \
     OWLEquivalentObjectPropertiesAxiom, OWLInverseObjectPropertiesAxiom, OWLNaryPropertyAxiom, OWLNaryIndividualAxiom, \
     OWLDifferentIndividualsAxiom, OWLDisjointClassesAxiom, OWLSameIndividualAxiom, OWLProperty, \
     OWLQuantifiedObjectRestriction
-from ontolearn.base.utils import ToOwlready2
+from ontolearn_light.base.utils import ToOwlready2
 
 
 @singledispatch

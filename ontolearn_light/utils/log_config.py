@@ -5,11 +5,11 @@ from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 
-import ontolearn
+import ontolearn_light
 import logging
 import logging.config
 
-from ontolearn.utils import oplogging
+from ontolearn_light.utils import oplogging
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,6 @@ def setup_logging(config_file="ontolearn/logging.conf"):
         _try_load(Path(config_file).resolve())
     except KeyError:
         try:
-            _try_load(Path(ontolearn.__path__[0], "..", config_file).resolve())
+            _try_load(Path(ontolearn_light.__path__[0], "..", config_file).resolve())
         except KeyError:
             print("Warning: could not find %s" % config_file, file=sys.stderr)
