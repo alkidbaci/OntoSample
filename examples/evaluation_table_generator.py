@@ -7,10 +7,16 @@ from argparse import ArgumentParser
 from ontosample.classic_samplers import *
 from ontosample.lpc_samplers import *
 
-from ontolearn_light.knowledge_base import KnowledgeBase
-# from ontolearn.concept_learner import EvoLearner, CELOE     # <--- pip install ontolearn
-from ontolearn_light.learning_problem import PosNegLPStandard
-from ontolearn_light.metrics import F1, Accuracy
+try:
+    from ontolearn.knowledge_base import KnowledgeBase
+    from ontolearn_light.learning_problem import PosNegLPStandard
+    from ontolearn_light.metrics import F1, Accuracy
+    from ontolearn.concept_learner import EvoLearner, CELOE  # <--- pip install ontolearn
+except ModuleNotFoundError:
+    from ontolearn_light.knowledge_base import KnowledgeBase
+    from ontolearn_light.learning_problem import PosNegLPStandard
+    from ontolearn_light.metrics import F1, Accuracy
+
 from owlapy.model import OWLNamedIndividual, IRI
 from ontolearn_light.utils import setup_logging
 

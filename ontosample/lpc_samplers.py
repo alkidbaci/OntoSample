@@ -4,7 +4,10 @@ from typing import Iterable
 from owlapy.model import OWLNamedIndividual
 from collections import deque
 from ontosample._base import Neighbor
-from ontolearn_light.knowledge_base import KnowledgeBase
+try:
+    from ontolearn.knowledge_base import KnowledgeBase
+except ModuleNotFoundError:
+    from ontolearn_light.knowledge_base import KnowledgeBase
 from ontosample.classic_samplers import RandomWalkerWithPrioritizationSampler, ForestFireSampler,\
     RandomWalkSampler, RandomEdgeSampler, RandomNodeSampler
 

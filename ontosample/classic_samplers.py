@@ -5,7 +5,10 @@ from typing import List
 from collections import deque
 from owlapy.model import OWLNamedIndividual
 from ontosample._base import Sampler, Neighbor, Node
-from ontolearn_light.knowledge_base import KnowledgeBase
+try:
+    from ontolearn.knowledge_base import KnowledgeBase
+except ModuleNotFoundError:
+    from ontolearn_light.knowledge_base import KnowledgeBase
 
 
 logger = logging.getLogger(__name__)

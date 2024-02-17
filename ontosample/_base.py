@@ -1,8 +1,13 @@
 import random
 import logging
 from typing import Iterable
-from ontolearn_light.knowledge_base import KnowledgeBase
-from ontolearn_light.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, OWLOntologyManager_Owlready2
+try:
+    from ontolearn.knowledge_base import KnowledgeBase
+    from ontolearn.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, \
+        OWLOntologyManager_Owlready2
+except ModuleNotFoundError:
+    from ontolearn_light.knowledge_base import KnowledgeBase
+    from ontolearn_light.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, OWLOntologyManager_Owlready2
 from owlapy.model import OWLNamedIndividual, OWLObjectPropertyAssertionAxiom, \
     OWLDataPropertyAssertionAxiom, OWLDeclarationAxiom, IRI
 
@@ -168,25 +173,24 @@ class Sampler:
         self._ontology = self._manager.load_ontology(self.graph.ontology.get_original_iri())
         self._reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
                                                          base_reasoner=OWLReasoner_Owlready2(
-                                                            ontology=self._ontology))
+                                                             ontology=self._ontology))
 
         assert len(self._sampled_nodes_edges) > 0, "The current sample is empty"
+        axioms_to_remove = set(map(OWLDeclarationAxiom, self._get_removed_nodes()))
+        for a in axioms_to_remove:
+            self._manager.remove_axiom(self._ontology, a)
 
-        for node in self._nodes:
-            if node not in self._sampled_nodes_edges:
-                self._manager.remove_axiom(self._ontology, OWLDeclarationAxiom(node))
-            else:
-                if not include_all_edges:
-                    # Removing all the edges of "node" except the one selected by the sampler
-                    self._remove_unselected_edges(node)
-                # Storing every data property for each node
-                if data_properties_percentage < 1:
-                    self._store_data_properties(node)
+        for node in self._sampled_nodes_edges.keys():
+            if not include_all_edges:
+                # Removing all the edges of "node" except the one selected by the sampler
+                self._remove_unselected_edges(node)
+            # Storing every data property for each node
+            if data_properties_percentage < 1:
+                self._store_data_properties(node)
         self._remove_unused_data_properties()
         # Removing specific percentage (data_properties_percentage) of data properties for each node
         if data_properties_percentage < 1:
             self._sample_data_properties(data_properties_percentage)
-
         new_graph = KnowledgeBase(ontology=self._ontology, reasoner=self._reasoner)
         self.reset()
         return new_graph
