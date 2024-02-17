@@ -192,6 +192,7 @@ class Sampler:
         if data_properties_percentage < 1:
             self._sample_data_properties(data_properties_percentage)
         new_graph = KnowledgeBase(ontology=self._ontology, reasoner=self._reasoner)
+        new_graph.path = self.graph.path
         self.reset()
         return new_graph
 
