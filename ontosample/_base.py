@@ -1,6 +1,11 @@
 import random
 import logging
 from typing import Iterable
+
+from owlapy.iri import IRI
+from owlapy.owl_axiom import OWLObjectPropertyAssertionAxiom, OWLDeclarationAxiom, OWLDataPropertyAssertionAxiom
+from owlapy.owl_individual import OWLNamedIndividual
+
 try:
     from ontolearn.knowledge_base import KnowledgeBase
     from ontolearn.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, \
@@ -8,8 +13,6 @@ try:
 except ModuleNotFoundError:
     from ontolearn_light.knowledge_base import KnowledgeBase
     from ontolearn_light.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, OWLOntologyManager_Owlready2
-from owlapy.model import OWLNamedIndividual, OWLObjectPropertyAssertionAxiom, \
-    OWLDataPropertyAssertionAxiom, OWLDeclarationAxiom, IRI
 
 logger = logging.getLogger(__name__)
 

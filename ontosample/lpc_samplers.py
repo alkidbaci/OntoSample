@@ -1,7 +1,7 @@
 import random
 import logging
 from typing import Iterable
-from owlapy.model import OWLNamedIndividual
+from owlapy.owl_individual import OWLNamedIndividual
 from collections import deque
 from ontosample._base import Neighbor
 try:

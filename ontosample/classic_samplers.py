@@ -3,7 +3,7 @@ import logging
 import numpy as np
 from typing import List
 from collections import deque
-from owlapy.model import OWLNamedIndividual
+from owlapy.owl_individual import OWLNamedIndividual
 from ontosample._base import Sampler, Neighbor, Node
 try:
     from ontolearn.knowledge_base import KnowledgeBase
