@@ -1,5 +1,5 @@
 import json
-from owlapy.model import IRI
+from owlapy.iri import IRI
 from ontosample.classic_samplers import *
 from ontosample.lpc_samplers import *
 from ontosample.lpf_samplers import *

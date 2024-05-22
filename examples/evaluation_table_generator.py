@@ -17,7 +17,7 @@ except ModuleNotFoundError:
     from ontolearn_light.learning_problem import PosNegLPStandard
     from ontolearn_light.metrics import F1, Accuracy
 
-from owlapy.model import OWLNamedIndividual, IRI
+from owlapy.owl_individual import OWLNamedIndividual, IRI
 from ontolearn_light.utils import setup_logging
 
 setup_logging()

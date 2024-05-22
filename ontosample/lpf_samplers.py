@@ -1,7 +1,7 @@
 import random
 import logging
-from typing import List, Iterable
-from owlapy.model import OWLNamedIndividual
+from typing import Iterable
+from owlapy.owl_individual import OWLNamedIndividual
 from ontosample._base import Neighbor
 try:
     from ontolearn.knowledge_base import KnowledgeBase

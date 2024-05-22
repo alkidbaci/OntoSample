@@ -1,9 +1,17 @@
 from itertools import chain
-from typing import Optional, Callable, Tuple, Generator
+from typing import Optional, Callable, Tuple, Generator, List, Union
+import pandas
+import matplotlib.pyplot as plt
+import numpy as np
+from owlapy.class_expression import OWLClass, OWLClassExpression
+from owlapy.iri import IRI
+from owlapy.owl_axiom import OWLEquivalentClassesAxiom
+from owlapy.owl_ontology import OWLOntology
+from owlapy.owl_ontology_manager import OWLOntologyManager
 from ..base.owl.hierarchy import ClassHierarchy, ObjectPropertyHierarchy, DatatypePropertyHierarchy
 from ..base.owl.utils import OWLClassExpressionLengthMetric
 from owlapy.util import LRUCache
-from ..base.fast_instance_checker import OWLReasoner_FastInstanceChecker
+import traceback
 
 
 def init_length_metric(length_metric: Optional[OWLClassExpressionLengthMetric] = None,
@@ -69,25 +77,77 @@ def compute_tp_fn_fp_tn(individuals, pos, neg):
     return tp, fn, fp, tn
 
 
-def compute_f1_score(individuals, pos, neg):
+def compute_f1_score(individuals, pos, neg) -> float:
+    """ Compute F1-score of a concept
+    """
+    assert type(individuals) == type(pos) == type(neg), f"Types must match:{type(individuals)},{type(pos)},{type(neg)}"
+    # true positive: |E^+ AND R(C)  |
     tp = len(pos.intersection(individuals))
+    # true negative : |E^- AND R(C)|
     tn = len(neg.difference(individuals))
 
+    # false positive : |E^- AND R(C)|
     fp = len(neg.intersection(individuals))
+    # false negative : |E^- \ R(C)|
     fn = len(pos.difference(individuals))
 
     try:
         recall = tp / (tp + fn)
     except ZeroDivisionError:
-        return 0
+        return 0.0
 
     try:
         precision = tp / (tp + fp)
     except ZeroDivisionError:
-        return 0
+        return 0.0
 
     if precision == 0 or recall == 0:
-        return 0
+        return 0.0
 
     f_1 = 2 * ((precision * recall) / (precision + recall))
     return f_1
+
+
+def plot_umap_reduced_embeddings(X: pandas.DataFrame, y: List[float], name: str = "umap_visualization.pdf") -> None:
+    import umap
+    reducer = umap.UMAP(random_state=1)
+    embedding = reducer.fit_transform(X)
+    plt.scatter(embedding[:, 0], embedding[:, 1],
+                c=["r" if x == 1 else "b" for x in y])
+    plt.grid()
+    plt.gca().set_aspect('equal', 'datalim')
+    plt.savefig(name)
+    plt.show()
+
+
+def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLClassExpression]],
+                               path: str = 'Predictions',
+                               rdf_format: str = 'rdfxml') -> None:
+    assert isinstance(expressions, OWLClassExpression) or isinstance(expressions[0],
+                                                                     OWLClassExpression), "expressions must be either OWLClassExpression or a list of OWLClassExpression"
+    if isinstance(expressions, OWLClassExpression):
+        expressions = [expressions]
+    NS: Final = 'https://dice-research.org/predictions#'
+
+    if rdf_format != 'rdfxml':
+        raise NotImplementedError(f'Format {rdf_format} not implemented.')
+    from ..base import OWLOntologyManager_Owlready2
+    # ()
+    manager: OWLOntologyManager = OWLOntologyManager_Owlready2()
+    # ()
+    ontology: OWLOntology = manager.create_ontology(IRI.create(NS))
+    # () Iterate over concepts
+    for th, i in enumerate(expressions):
+        cls_a = OWLClass(IRI.create(NS, str(th)))
+        equivalent_classes_axiom = OWLEquivalentClassesAxiom([cls_a, i])
+        try:
+            manager.add_axiom(ontology, equivalent_classes_axiom)
+        except AttributeError:
+            print(traceback.format_exc())
+            print("Exception at creating OWLEquivalentClassesAxiom")
+            print(equivalent_classes_axiom)
+            print(cls_a)
+            print(i)
+            print(expressions)
+            exit(1)
+    manager.save_ontology(ontology, IRI.create('file:/' + path + '.owl'))
