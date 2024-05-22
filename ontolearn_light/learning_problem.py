@@ -5,7 +5,7 @@ from typing import Set, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ontolearn_light.knowledge_base import KnowledgeBase
 from ontolearn_light.abstracts import AbstractLearningProblem, EncodedLearningProblem, EncodedPosNegLPStandardKind
-from owlapy.model import OWLNamedIndividual
+from owlapy.owl_individual import OWLNamedIndividual
 
 logger = logging.getLogger(__name__)
 
