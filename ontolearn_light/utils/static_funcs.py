@@ -1,16 +1,12 @@
 from itertools import chain
-from typing import Optional, Callable, Tuple, Generator, List, Union
-import pandas
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import Optional, Callable, Tuple, Generator, List, Union, Final
 from owlapy.class_expression import OWLClass, OWLClassExpression
 from owlapy.iri import IRI
 from owlapy.owl_axiom import OWLEquivalentClassesAxiom
 from owlapy.owl_ontology import OWLOntology
 from owlapy.owl_ontology_manager import OWLOntologyManager
-from ..base.owl.hierarchy import ClassHierarchy, ObjectPropertyHierarchy, DatatypePropertyHierarchy
-from ..base.owl.utils import OWLClassExpressionLengthMetric
-from owlapy.util import LRUCache
+from owlapy.owl_hierarchy import ClassHierarchy, ObjectPropertyHierarchy, DatatypePropertyHierarchy
+from owlapy.utils import OWLClassExpressionLengthMetric, LRUCache
 import traceback
 
 
@@ -107,19 +103,6 @@ def compute_f1_score(individuals, pos, neg) -> float:
     f_1 = 2 * ((precision * recall) / (precision + recall))
     return f_1
 
-
-def plot_umap_reduced_embeddings(X: pandas.DataFrame, y: List[float], name: str = "umap_visualization.pdf") -> None:
-    import umap
-    reducer = umap.UMAP(random_state=1)
-    embedding = reducer.fit_transform(X)
-    plt.scatter(embedding[:, 0], embedding[:, 1],
-                c=["r" if x == 1 else "b" for x in y])
-    plt.grid()
-    plt.gca().set_aspect('equal', 'datalim')
-    plt.savefig(name)
-    plt.show()
-
-
 def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLClassExpression]],
                                path: str = 'Predictions',
                                rdf_format: str = 'rdfxml') -> None:
@@ -131,9 +114,9 @@ def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLCl
 
     if rdf_format != 'rdfxml':
         raise NotImplementedError(f'Format {rdf_format} not implemented.')
-    from ..base import OWLOntologyManager_Owlready2
+    from owlapy.owl_ontology_manager import OntologyManager
     # ()
-    manager: OWLOntologyManager = OWLOntologyManager_Owlready2()
+    manager: OWLOntologyManager = OntologyManager()
     # ()
     ontology: OWLOntology = manager.create_ontology(IRI.create(NS))
     # () Iterate over concepts

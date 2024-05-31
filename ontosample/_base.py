@@ -5,14 +5,13 @@ from typing import Iterable
 from owlapy.iri import IRI
 from owlapy.owl_axiom import OWLObjectPropertyAssertionAxiom, OWLDeclarationAxiom, OWLDataPropertyAssertionAxiom
 from owlapy.owl_individual import OWLNamedIndividual
+from owlapy.owl_reasoner import FastInstanceCheckerReasoner, OntologyReasoner
+from owlapy.owl_ontology_manager import OntologyManager
 
 try:
     from ontolearn.knowledge_base import KnowledgeBase
-    from ontolearn.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, \
-        OWLOntologyManager_Owlready2
 except ModuleNotFoundError:
     from ontolearn_light.knowledge_base import KnowledgeBase
-    from ontolearn_light.base import OWLReasoner_FastInstanceChecker, OWLReasoner_Owlready2, OWLOntologyManager_Owlready2
 
 logger = logging.getLogger(__name__)
 
@@ -172,10 +171,10 @@ class Sampler:
                 Sample of the graph/ontology (of type KnowledgeBase).
         """
 
-        self._manager = OWLOntologyManager_Owlready2()
+        self._manager = OntologyManager()
         self._ontology = self._manager.load_ontology(self.graph.ontology.get_original_iri())
-        self._reasoner = OWLReasoner_FastInstanceChecker(ontology=self._ontology,
-                                                         base_reasoner=OWLReasoner_Owlready2(
+        self._reasoner = FastInstanceCheckerReasoner(ontology=self._ontology,
+                                                         base_reasoner=OntologyReasoner(
                                                              ontology=self._ontology))
 
         assert len(self._sampled_nodes_edges) > 0, "The current sample is empty"

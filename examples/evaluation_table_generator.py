@@ -9,8 +9,8 @@ from ontosample.lpc_samplers import *
 
 try:
     from ontolearn.knowledge_base import KnowledgeBase
-    from ontolearn_light.learning_problem import PosNegLPStandard
-    from ontolearn_light.metrics import F1, Accuracy
+    from ontolearn.learning_problem import PosNegLPStandard
+    from ontolearn.metrics import F1, Accuracy
     from ontolearn.concept_learner import EvoLearner, CELOE  # <--- pip install ontolearn
 except ModuleNotFoundError:
     from ontolearn_light.knowledge_base import KnowledgeBase
@@ -77,7 +77,7 @@ def start(args):
                 for i in range(0, iterations):
                     kb = KnowledgeBase(path=settings['data_path'])
                     if smp == "RN":
-                        sampler = NodeSampler(kb)
+                        sampler = RandomNodeSampler(kb)
                         is_lpc = False
                     elif smp == "RW":
                         sampler = RandomWalkSampler(kb)
