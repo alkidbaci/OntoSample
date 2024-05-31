@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 setup(
     name="ontosample",
     description="Ontosample is a package that offers different sampling techniques for OWL ontologies.",
-    version="0.2.4",
+    version="0.2.5",
     packages=find_packages(),
     install_requires=[
         "matplotlib>=3.3.4",
@@ -13,7 +13,7 @@ setup(
         "torch>=1.7.1",
         "pandas>=1.5.0",
         "sortedcontainers>=2.4.0",
-        "owlapy==1.0.2",
+        "owlapy==1.1.0",
         "requests>=2.31.0",
         "deap>=1.3.1"],
     author='Alkid Baci',
