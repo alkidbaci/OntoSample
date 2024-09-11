@@ -59,7 +59,6 @@ def init_individuals_from_concepts(include_implicit_individuals: bool = None, re
         # get all individuals from concepts
         _ind_set = frozenset(chain.from_iterable(individuals_per_concept))
     else:
-        # @TODO: needs to be explained
         individuals = ontology.individuals_in_signature()
         _ind_set = frozenset(individuals)
     return _ind_set

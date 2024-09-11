@@ -52,7 +52,6 @@ class ConceptGenerator:
                              b_operands: Iterable[OWLClassExpression]) -> Iterable[OWLObjectUnionOf]:
         """ Create an union of each class expression in a_operands with each class expression in b_operands."""
         assert (isinstance(a_operands, Generator) is False) and (isinstance(b_operands, Generator) is False)
-        # TODO: if input sizes say 10^4, we can employ multiprocessing
         seen = set()
         for i in a_operands:
             for j in b_operands:
@@ -73,8 +72,6 @@ class ConceptGenerator:
         Returns:
             Intersection with all operands (intersections are merged).
         """
-        # TODO CD: I would rather prefer def intersection(self, a: OWLClassExpression, b: OWLClassExpression). This is
-        # TODO CD: more advantages as one does not need to create a tuple of a list before intersection two expressions.
         operands: List[OWLClassExpression] = []
         for c in ops:
             if isinstance(c, OWLObjectIntersectionOf):

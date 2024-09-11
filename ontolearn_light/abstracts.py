@@ -9,15 +9,13 @@ from owlapy.utils import iter_count
 from .data_struct import Experience
 from .utils import read_csv
 from collections import OrderedDict
-
+from owlapy import owl_expression_to_dl
 _N = TypeVar('_N')  #:
 _KB = TypeVar('_KB', bound='AbstractKnowledgeBase')  #:
 
 logger = logging.getLogger(__name__)
 
-# @TODO:CD: Each Class definiton in abstract.py should share a prefix, e.g., BaseX or AbstractX.
-# @TODO:CD: All imports must be located on top of the script
-from owlapy import owl_expression_to_dl
+
 class EncodedLearningProblem(metaclass=ABCMeta):
     """Encoded Abstract learning problem for use in Scorers."""
     __slots__ = ()
@@ -28,7 +26,6 @@ class EncodedPosNegLPStandardKind(EncodedLearningProblem, metaclass=ABCMeta):
     __slots__ = ()
 
 
-# @TODO: Why we need Generic[_N] and if we need it why we di not use it in all other abstract classes?
 class AbstractScorer(Generic[_N], metaclass=ABCMeta):
     """
     An abstract class for quality functions.
@@ -54,7 +51,6 @@ class AbstractScorer(Generic[_N], metaclass=ABCMeta):
         """
         if len(instances) == 0:
             return False, 0
-        # @TODO: It must be moved to the top of the abstracts.py
         from ontolearn_light.learning_problem import EncodedPosNegLPStandard
         if isinstance(learning_problem, EncodedPosNegLPStandard):
             tp = len(learning_problem.kb_pos.intersection(instances))
@@ -82,7 +78,6 @@ class AbstractScorer(Generic[_N], metaclass=ABCMeta):
         """
         pass
 
-    # @TODO:CD: Why there is '..' in AbstractNode
     def apply(self, node: 'AbstractNode', instances, learning_problem: EncodedLearningProblem) -> bool:
         """Apply the quality function to a search tree node after calculating the quality score on the given instances.
 
@@ -99,7 +94,6 @@ class AbstractScorer(Generic[_N], metaclass=ABCMeta):
             f'Expected EncodedLearningProblem but got {type(learning_problem)}'
         assert isinstance(node, AbstractNode), \
             f'Expected AbstractNode but got {type(node)}'
-        # @TODO: It must be moved to the top of the abstracts.py
         from ontolearn_light.search import _NodeQuality
         assert isinstance(node, _NodeQuality), \
             f'Expected _NodeQuality but got {type(_NodeQuality)}'

@@ -13,7 +13,7 @@ setup(
         "torch>=1.7.1",
         "pandas>=1.5.0",
         "sortedcontainers>=2.4.0",
-        "owlapy==1.1.0",
+        "owlapy==1.3.0",
         "requests>=2.31.0",
         "deap>=1.3.1"],
     author='Alkid Baci',

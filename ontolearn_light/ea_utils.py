@@ -136,7 +136,6 @@ def ind_to_string(ind: List[Tree]) -> str:
     return ''.join([prim.name for prim in ind])
 
 
-# TODO: Ugly hack for now
 def owlliteral_to_primitive_string(lit: OWLLiteral, pe: Optional[Union[OWLDataProperty, OWLObjectProperty]] = None) \
         -> str:
     str_ = type(lit.to_python()).__name__ + escape(lit.get_literal())

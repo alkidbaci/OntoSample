@@ -317,7 +317,6 @@ class KnowledgeBase(AbstractKnowledgeBase):
          If no concept-s|propert-y/ies are given, get all tbox axioms.
 
          Args:
-             @TODO: entities or namedindividuals ?!
              entities: Entities to obtain tbox axioms from. This can be a single
               OWLClass/OWLDataProperty/OWLObjectProperty object, a list of those objects or None. If you enter a list
               that combines classes and properties (which we don't recommend doing), only axioms for one type will be
@@ -525,8 +524,6 @@ class KnowledgeBase(AbstractKnowledgeBase):
         Returns:
             Length of the concept.
         """
-        # @TODO: CD: Computing the length of a concept should be disantangled from KB
-        # @TODO: CD: Ideally, this should be a static function
 
         return self.length_metric.length(ce)
 
@@ -666,8 +663,6 @@ class KnowledgeBase(AbstractKnowledgeBase):
 
     def encode_learning_problem(self, lp: PosNegLPStandard):
         """
-        @TODO: A learning problem (DL concept learning problem) should not be a part of a knowledge base
-
         Provides the encoded learning problem (lp), i.e. the class containing the set of OWLNamedIndividuals
         as follows:
             kb_pos --> the positive examples set,
@@ -720,8 +715,6 @@ class KnowledgeBase(AbstractKnowledgeBase):
                          encoded_learning_problem: EncodedLearningProblem) -> EvaluatedConcept:
         """Evaluates a concept by using the encoded learning problem examples, in terms of Accuracy or F1-score.
 
-        @ TODO: A knowledge base is a data structure and the context of "evaluating" a concept seems to be unrelated
-
         Note:
             This method is useful to tell the quality (e.q) of a generated concept by the concept learners, to get
             the set of individuals (e.inds) that are classified by this concept and the amount of them (e.ic).
@@ -752,22 +745,16 @@ class KnowledgeBase(AbstractKnowledgeBase):
 
     def get_least_general_named_concepts(self) -> Generator[OWLClass, None, None]:
         """Get leaf classes.
-        @TODO: Docstring needed
-        Returns:
         """
         yield from self.class_hierarchy.leaves()
 
     def least_general_named_concepts(self) -> Generator[OWLClass, None, None]:
         """Get leaf classes.
-        @TODO: Docstring needed
-        Returns:
         """
         yield from self.class_hierarchy.leaves()
 
     def get_most_general_classes(self) -> Generator[OWLClass, None, None]:
-        """Get most general named concepts classes.
-        @TODO: Docstring needed
-        Returns:"""
+        """Get most general named concepts classes."""
         yield from self.class_hierarchy.roots()
 
     def get_direct_sub_concepts(self, concept: OWLClass) -> Iterable[OWLClass]:
