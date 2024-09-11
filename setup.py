@@ -20,10 +20,10 @@ setup(
     author_email='alkid1baci@gmail.com',
     url='https://github.com/alkidbaci/OntoSample',
     classifiers=[
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence"],
-    python_requires='>=3.9.18',
+        "Programming Language :: Python :: 3.10",
+        "License :: OSI Approved :: MIT License",
+        "Topic :: Scientific/Engineering"],
+    python_requires='>=3.10.13',
     long_description=long_description,
     long_description_content_type="text/markdown",
 )
