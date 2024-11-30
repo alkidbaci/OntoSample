@@ -21,6 +21,7 @@ jobs:
       - name: Test with pytest
         run: |
           wget https://files.dice-research.org/projects/Ontolearn/KGs.zip
+          rm -r KGs
           unzip KGs.zip
           pip install pytest
           python -m pytest -p no:warnings -x
