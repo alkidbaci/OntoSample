@@ -6,7 +6,7 @@ from ontolearn_light.knowledge_base import KnowledgeBase
 
 
 class TestSamplers(unittest.TestCase):
-    kb = KnowledgeBase(path="../KGs/Hepatitis/hepatitis.owl")
+    kb = KnowledgeBase(path="KGs/Hepatitis/hepatitis.owl")
     pos = {OWLNamedIndividual("http://dl-learner.org/res/patient346"),
            OWLNamedIndividual("http://dl-learner.org/res/patient345")}
     neg = {OWLNamedIndividual("http://dl-learner.org/res/patient344"),
