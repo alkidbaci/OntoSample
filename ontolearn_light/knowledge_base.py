@@ -14,15 +14,12 @@ from owlapy.owl_axiom import OWLClassAssertionAxiom, OWLObjectPropertyAssertionA
 from owlapy.owl_datatype import OWLDatatype
 from owlapy.owl_individual import OWLNamedIndividual
 from owlapy.owl_literal import BooleanOWLDatatype, NUMERIC_DATATYPES, DoubleOWLDatatype, TIME_DATATYPES, OWLLiteral
-from owlapy.owl_ontology import OWLOntology
-from owlapy.owl_ontology_manager import OWLOntologyManager
 from owlapy.owl_property import OWLObjectProperty, OWLDataProperty, OWLObjectPropertyExpression, \
     OWLDataPropertyExpression
-from owlapy.owl_reasoner import OWLReasoner
 
 from owlapy.owl_ontology import Ontology
 from owlapy.owl_ontology_manager import OntologyManager
-from owlapy.owl_reasoner import FastInstanceCheckerReasoner, OntologyReasoner
+from owlapy.owl_reasoner import StructuralReasoner
 
 from owlapy.render import DLSyntaxObjectRenderer
 from ontolearn_light.search import EvaluatedConcept
@@ -35,18 +32,16 @@ from owlapy.owl_hierarchy import ClassHierarchy, ObjectPropertyHierarchy, Dataty
 from .utils.static_funcs import (init_length_metric, init_hierarchy_instances,
                                  init_named_individuals, init_individuals_from_concepts)
 
-from owlapy.class_expression import OWLDataMaxCardinality, OWLDataSomeValuesFrom
-from owlapy import owl_expression_to_sparql, owl_expression_to_dl
+from owlapy.class_expression import OWLDataSomeValuesFrom
 from owlapy.owl_data_ranges import OWLDataRange
 from owlapy.class_expression import OWLDataOneOf
 
 logger = logging.getLogger(__name__)
 
 
-def depth_Default_ReasonerFactory(onto: OWLOntology) -> OWLReasoner:
+def depth_Default_ReasonerFactory(onto: Ontology) -> StructuralReasoner:
     assert isinstance(onto, Ontology)
-    base_reasoner = OntologyReasoner(ontology=onto)
-    return FastInstanceCheckerReasoner(ontology=onto, base_reasoner=base_reasoner)
+    return StructuralReasoner(ontology=onto, class_cache=False, property_cache=False)
 
 
 class KnowledgeBase(AbstractKnowledgeBase):
@@ -89,9 +84,9 @@ class KnowledgeBase(AbstractKnowledgeBase):
     @overload
     def __init__(self, *,
                  path: str,
-                 ontologymanager_factory: Callable[[], OWLOntologyManager] = OntologyManager(
+                 ontologymanager_factory: Callable[[], OntologyManager] = OntologyManager(
                      world_store=None),
-                 reasoner_factory: Callable[[OWLOntology], OWLReasoner] = None,
+                 reasoner_factory: Callable[[Ontology], StructuralReasoner] = None,
                  length_metric: Optional[OWLClassExpressionLengthMetric] = None,
                  length_metric_factory: Optional[Callable[[], OWLClassExpressionLengthMetric]] = None,
                  individuals_cache_size=128,
@@ -101,8 +96,8 @@ class KnowledgeBase(AbstractKnowledgeBase):
 
     @overload
     def __init__(self, *,
-                 ontology: OWLOntology,
-                 reasoner: OWLReasoner,
+                 ontology: Ontology,
+                 reasoner: StructuralReasoner,
                  load_class_hierarchy: bool = True,
                  length_metric: Optional[OWLClassExpressionLengthMetric] = None,
                  length_metric_factory: Optional[Callable[[], OWLClassExpressionLengthMetric]] = None,
@@ -112,12 +107,12 @@ class KnowledgeBase(AbstractKnowledgeBase):
     def __init__(self, *,
                  path: Optional[str] = None,
 
-                 ontologymanager_factory: Optional[Callable[[], OWLOntologyManager]] = None,
-                 reasoner_factory: Optional[Callable[[OWLOntology], OWLReasoner]] = None,
+                 ontologymanager_factory: Optional[Callable[[], OntologyManager]] = None,
+                 reasoner_factory: Optional[Callable[[Ontology], StructuralReasoner]] = None,
                  length_metric_factory: Optional[Callable[[], OWLClassExpressionLengthMetric]] = None,
 
-                 ontology: Optional[OWLOntology] = None,
-                 reasoner: Optional[OWLReasoner] = None,
+                 ontology: Optional[Ontology] = None,
+                 reasoner: Optional[StructuralReasoner] = None,
                  length_metric: Optional[OWLClassExpressionLengthMetric] = None,
 
                  individuals_cache_size=128,
@@ -152,14 +147,13 @@ class KnowledgeBase(AbstractKnowledgeBase):
                     self.manager.save_world()
                     logger.debug("Synced world to backend store")
 
-        reasoner: OWLReasoner
+        reasoner: StructuralReasoner
         if reasoner is not None:
             self.reasoner = reasoner
         elif reasoner_factory is not None:
             self.reasoner = reasoner_factory(self.ontology)
         else:
-            self.reasoner = FastInstanceCheckerReasoner(ontology=self.ontology, base_reasoner=OntologyReasoner(
-                                                                                                ontology=self.ontology))
+            self.reasoner = StructuralReasoner(ontology=self.ontology, class_cache=False, property_cache=False)
 
         self.length_metric = init_length_metric(length_metric, length_metric_factory)
 
@@ -547,7 +541,7 @@ class KnowledgeBase(AbstractKnowledgeBase):
             raise TypeError
         if ce in self.ind_cache:
             return
-        if isinstance(self.reasoner, FastInstanceCheckerReasoner):
+        if isinstance(self.reasoner, StructuralReasoner):
             self.ind_cache[ce] = self.reasoner._find_instances(ce)  # performance hack
         else:
             temp = self.reasoner.instances(ce)

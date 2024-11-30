@@ -4,7 +4,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 from typing import Set, List, Tuple, Iterable, TypeVar, Generic, ClassVar, Optional
 from owlapy.class_expression import OWLClassExpression
-from owlapy.owl_ontology import OWLOntology
+from owlapy.owl_ontology import Ontology
 from owlapy.utils import iter_count
 from .data_struct import Experience
 from .utils import read_csv
@@ -325,7 +325,7 @@ class AbstractKnowledgeBase(metaclass=ABCMeta):
 
     # CD: This function is used as "a get method". Insteadf either access the atttribute directly
     # or use it as a property @abstractmethod
-    def ontology(self) -> OWLOntology:
+    def ontology(self) -> Ontology:
         """The base ontology of this knowledge base."""
         pass
 

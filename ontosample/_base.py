@@ -2,10 +2,9 @@ import random
 import logging
 from typing import Iterable
 
-from owlapy.iri import IRI
 from owlapy.owl_axiom import OWLObjectPropertyAssertionAxiom, OWLDeclarationAxiom, OWLDataPropertyAssertionAxiom
 from owlapy.owl_individual import OWLNamedIndividual
-from owlapy.owl_reasoner import FastInstanceCheckerReasoner, OntologyReasoner
+from owlapy.owl_reasoner import StructuralReasoner
 from owlapy.owl_ontology_manager import OntologyManager
 
 try:
@@ -33,8 +32,8 @@ class Node:
         them. This is not the 'node' we refer to in the other docstrings. This is used only for random walker with
         prioritization.
     """
-    def __init__(self, IRI):
-        self.IRI = IRI
+    def __init__(self, iri):
+        self.iri = iri
         self.outgoing = []
         self.incoming = []
         self.pagerank = 1.0
@@ -102,7 +101,7 @@ class Sampler:
 
         if neighbors:
             for neighbor in neighbors:
-                neighbor_pagerank_dict[neighbor] = nodes_dict[neighbor.node.get_iri().as_str()].pagerank
+                neighbor_pagerank_dict[neighbor] = nodes_dict[neighbor.node.str].pagerank
             return random.choices(list(neighbor_pagerank_dict.keys()), weights=list(neighbor_pagerank_dict.values()), k=1).pop()
         else:
             return None
@@ -173,8 +172,7 @@ class Sampler:
 
         self._manager = OntologyManager()
         self._ontology = self._manager.load_ontology(self.graph.ontology.get_original_iri())
-        self._reasoner = FastInstanceCheckerReasoner(ontology=self._ontology,
-                                                     base_reasoner=OntologyReasoner(ontology=self._ontology))
+        self._reasoner = StructuralReasoner(ontology=self._ontology)
 
         assert len(self._sampled_nodes_edges) > 0, "The current sample is empty"
         axioms_to_remove = set(map(OWLDeclarationAxiom, self._get_removed_nodes()))
@@ -210,14 +208,12 @@ class Sampler:
         """
         onto = kb.ontology
         if filename:
-            if len(filename) > 4 and filename[-4:] == ".owl":
-                filename = f'file:/{filename}'
-            else:
-                filename = f'file:/{filename}.owl'
+            if len(filename) > 4 and not filename[-4:] == ".owl":
+                filename = f'{filename}.owl'
         else:
-            filename = f'file:/{onto.get_original_iri().as_str().split("/")[-1].replace(".owl", "")}_sample_' \
+            filename = f'{onto.get_original_iri().as_str().split("/")[-1].replace(".owl", "")}_sample_' \
                    f'{len(list(onto.individuals_in_signature()))}.owl'
-        onto.save(document_iri=IRI.create(filename))
+        onto.save(filename)
 
     def _get_removed_nodes(self):
         """
@@ -274,10 +270,10 @@ class Sampler:
         """
         for node in self._all_dp_axioms.keys():
             nr_of_dp_axioms_of_node = len(self._all_dp_axioms[node])
-            nr_of_removed_axioms = 0
-            while self._all_dp_axioms[node] and 1 - dpp > nr_of_removed_axioms / nr_of_dp_axioms_of_node:
-                self._ontology.remove_axiom(self._all_dp_axioms[node].pop())
-                nr_of_removed_axioms += 1
+            nr_of_dp_to_remove = int(dpp * nr_of_dp_axioms_of_node)
+            if nr_of_dp_axioms_of_node > 0:
+                dp_to_be_removed = random.sample(self._all_dp_axioms[node], nr_of_dp_to_remove)
+                self._ontology.remove_axiom(dp_to_be_removed)
 
     def _remove_unused_data_properties(self):
         """
