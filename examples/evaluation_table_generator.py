@@ -131,7 +131,7 @@ def start(args):
                         p = set(examples['positive_examples'])
                         n = set(examples['negative_examples'])
                         for individual in removed_individuals:
-                            individual_as_str = individual.get_iri().as_str()
+                            individual_as_str = individual.str
                             if individual_as_str in p:
                                 p.remove(individual_as_str)
                             if individual_as_str in n:

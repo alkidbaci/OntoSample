@@ -588,7 +588,6 @@ class SearchTreePriorityQueue(LBLSearchTree[LBLNode]):
                 self.items_in_queue.put((-node.heuristic, HeuristicOrderedNode(node)))  # gets the smallest one.
                 self.nodes[node.concept] = node
         else:
-            # @todos reconsider it.
             self.quality_func.apply(node, node.individuals, kb_learning_problem)
             if node.quality == 0:
                 return False
@@ -682,8 +681,6 @@ class TreeNode(Generic[_N]):
 
 class DRILLSearchTreePriorityQueue(DRILLAbstractTree):
     """
-
-    #@TODO Move to learners/drill.py
 
     Search tree based on priority queue.
 

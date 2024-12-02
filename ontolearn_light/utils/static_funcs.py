@@ -3,8 +3,8 @@ from typing import Optional, Callable, Tuple, Generator, List, Union, Final
 from owlapy.class_expression import OWLClass, OWLClassExpression
 from owlapy.iri import IRI
 from owlapy.owl_axiom import OWLEquivalentClassesAxiom
-from owlapy.owl_ontology import OWLOntology
-from owlapy.owl_ontology_manager import OWLOntologyManager
+from owlapy.owl_ontology import Ontology
+from owlapy.owl_ontology_manager import OntologyManager
 from owlapy.owl_hierarchy import ClassHierarchy, ObjectPropertyHierarchy, DatatypePropertyHierarchy
 from owlapy.utils import OWLClassExpressionLengthMetric, LRUCache
 import traceback
@@ -59,7 +59,6 @@ def init_individuals_from_concepts(include_implicit_individuals: bool = None, re
         # get all individuals from concepts
         _ind_set = frozenset(chain.from_iterable(individuals_per_concept))
     else:
-        # @TODO: needs to be explained
         individuals = ontology.individuals_in_signature()
         _ind_set = frozenset(individuals)
     return _ind_set
@@ -103,6 +102,7 @@ def compute_f1_score(individuals, pos, neg) -> float:
     f_1 = 2 * ((precision * recall) / (precision + recall))
     return f_1
 
+
 def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLClassExpression]],
                                path: str = 'Predictions',
                                rdf_format: str = 'rdfxml') -> None:
@@ -114,17 +114,16 @@ def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLCl
 
     if rdf_format != 'rdfxml':
         raise NotImplementedError(f'Format {rdf_format} not implemented.')
-    from owlapy.owl_ontology_manager import OntologyManager
     # ()
-    manager: OWLOntologyManager = OntologyManager()
+    manager: OntologyManager = OntologyManager()
     # ()
-    ontology: OWLOntology = manager.create_ontology(IRI.create(NS))
+    ontology: Ontology = manager.create_ontology(IRI.create(NS))
     # () Iterate over concepts
     for th, i in enumerate(expressions):
         cls_a = OWLClass(IRI.create(NS, str(th)))
         equivalent_classes_axiom = OWLEquivalentClassesAxiom([cls_a, i])
         try:
-            manager.add_axiom(ontology, equivalent_classes_axiom)
+            ontology.add_axiom(equivalent_classes_axiom)
         except AttributeError:
             print(traceback.format_exc())
             print("Exception at creating OWLEquivalentClassesAxiom")
@@ -133,4 +132,4 @@ def save_owl_class_expressions(expressions: Union[OWLClassExpression, List[OWLCl
             print(i)
             print(expressions)
             exit(1)
-    manager.save_ontology(ontology, IRI.create('file:/' + path + '.owl'))
+    ontology.save(IRI.create('file:/' + path + '.owl'))

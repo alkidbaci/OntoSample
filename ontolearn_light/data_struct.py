@@ -91,7 +91,6 @@ class Experience:
     """
 
     def __init__(self, maxlen: int):
-        # @TODO we may want to not forget experiences yielding high rewards
         self.current_states = deque(maxlen=maxlen)
         self.next_states = deque(maxlen=maxlen)
         self.rewards = deque(maxlen=maxlen)

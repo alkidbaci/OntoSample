@@ -105,7 +105,8 @@ class RandomEdgeSampler(Sampler):
 
 class RandomWalkSampler(Sampler):
     """
-        Random walk sampling. Creates a subgraph by walking randomly in the graph.
+        Random walk sampling. Creates a subgraph by walking randomly in the graph. More likely to end up in a
+        never ending loop. Use RWJ if your graph is disconnected.
     """
 
     def _create_initial_node_set(self):
@@ -210,7 +211,8 @@ class RandomWalkerJumpsSampler(RandomWalkSampler):
 class RandomWalkerWithPrioritizationSampler(RandomWalkSampler):
     """
         Random walker with prioritization sampling. Like random walk sampler, but it prioritizes the nodes based on
-        their page rank value. The higher the page rank, the more chance for it to be selected.
+        their page rank value. The higher the page rank, the more chance for it to be selected. More likely to end up in
+        a never ending loop. Use RWJP if your graph is disconnected.
     """
 
     def _nodes_list_set_up(self):
@@ -222,7 +224,7 @@ class RandomWalkerWithPrioritizationSampler(RandomWalkSampler):
         object_properties = list(self._ontology.object_properties_in_signature())
         reasoner = self._reasoner
         for i in self._nodes:
-            iri = i.get_iri().as_str()
+            iri = i.str
             self._nodes_dict[iri] = Node(iri)
             for op in object_properties:
                 op_of_i = reasoner.object_property_values(i, op)
@@ -232,7 +234,7 @@ class RandomWalkerWithPrioritizationSampler(RandomWalkSampler):
 
         for node in self._nodes_dict.values():
             for child in node.outgoing:
-                self._nodes_dict[child.get_iri().as_str()].incoming.append(self._nodes_dict[node.IRI])
+                self._nodes_dict[child.str].incoming.append(self._nodes_dict[node.iri])
 
     def _distribute_pagerank(self, d):
         """
@@ -376,7 +378,7 @@ class ForestFireSampler(Sampler):
             unvisited_neighbors = set(n.node for n in neighbors if n.node not in self._sampled_nodes_edges.keys() and n.node not in node_queue)
             score = np.random.geometric(self.p)
             size = min(len(unvisited_neighbors), score)
-            burned_neighbors = random.sample(unvisited_neighbors, size)
+            burned_neighbors = random.sample(list(unvisited_neighbors), size)
             # self._sampled_nodes_edges[top_node] = set(n for n in neighbors if n.node in unvisited_neighbors)
             visited_neighbors = unvisited_neighbors - set(burned_neighbors)
             self._visited_nodes.extendleft(n for n in visited_neighbors if n not in self._visited_nodes)
