@@ -21,7 +21,7 @@ or
 
 ```shell
 # 1. clone 
-git clone https://github.com/dice-group/Ontolearn.git 
+git clone https://github.com/alkidbaci/OntoSample.git
 # 2. setup virtual environment
 python -m venv venv 
 # 3. activate the virtual environment
